@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arconic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
-  <!-- React 18 + Babel (для JSX без сборщика) -->
+  <!-- React 18 + Babel -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -14,14 +14,11 @@
       height: 100%;
       margin: 0;
       font-family: 'Arial', sans-serif;
-    }
-    body {
-      background: #f9fafb;
-      color: #111827;
+      background-color: #f9fafb;
     }
     .app-container {
       padding: 20px;
-      max-width: 1000px;
+      max-width: 1200px;
       margin: 0 auto;
       background-color: white;
       border-radius: 8px;
@@ -41,7 +38,7 @@
       border: 1px solid #ddd;
       border-radius: 4px;
     }
-    .button {
+    button {
       width: 100%;
       padding: 10px;
       background-color: #4CAF50;
@@ -50,8 +47,22 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    .button:hover {
+    button:hover {
       background-color: #45a049;
+    }
+    .button-danger {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .button-danger:hover {
+      background-color: #c0392b;
+    }
+    .button-add {
+      background-color: #e0e0e0;
+      color: #111827;
+    }
+    .button-add:hover {
+      background-color: #d4d4d4;
     }
     .card {
       background: white;
@@ -72,6 +83,25 @@
     .column {
       flex: 1;
     }
+    .type-villa {
+      margin-bottom: 20px;
+    }
+    .table-wrap {
+      max-height: 260px;
+      overflow: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .table th, .table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
   </style>
 </head>
 <body>
@@ -86,183 +116,216 @@
         { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
         { id: 3, name: "Вилла тип 3", area: 201, count: 1 },
       ]);
-
       const [investorExpenses, setInvestorExpenses] = useState([]);
       const [totalExpenses, setTotalExpenses] = useState([]);
       const [interestRate, setInterestRate] = useState(8.33); // Целевая доходность
-      const [totalSpent, setTotalSpent] = useState(0); // Общая потраченная сумма
+      const [baseCostPerM2, setBaseCostPerM2] = useState(1200); // Себестоимость квадратного метра
+      const [sales, setSales] = useState([]); // Продажи
+
+      // Функция для добавления нового типа виллы
+      const addVillaType = () => {
+        const newId = Math.max(...villaTypes.map(villa => villa.id)) + 1;
+        setVillaTypes([
+          ...villaTypes,
+          { id: newId, name: `Вилла тип ${newId}`, area: 100, count: 1 },
+        ]);
+      };
 
       // Функция для добавления затрат инвестора
-      const handleInvestorExpenseChange = (month, amount, year) => {
-        setInvestorExpenses((prev) => [...prev, { month, amount: parseFloat(amount), year }]);
-        setTotalSpent((prev) => prev + parseFloat(amount));
+      const addInvestorExpense = (month, year, amount) => {
+        setInvestorExpenses([...investorExpenses, { month, year, amount: parseFloat(amount) }]);
       };
 
       // Функция для добавления общих затрат
-      const handleTotalExpenseChange = (month, amount, year) => {
-        setTotalExpenses((prev) => [...prev, { month, amount: parseFloat(amount), year }]);
+      const addTotalExpense = (month, year, amount) => {
+        setTotalExpenses([...totalExpenses, { month, year, amount: parseFloat(amount) }]);
       };
 
-      // Компонент для ввода данных о типах вилл
-      const VillaTypesForm = () => {
-        const handleVillaChange = (index, field, value) => {
-          const newVillaTypes = [...villaTypes];
-          newVillaTypes[index][field] = value;
-          setVillaTypes(newVillaTypes);
-        };
-
-        return (
-          <div className="card">
-            <h2 className="card-title">Типы вилл</h2>
-            {villaTypes.map((villa, index) => (
-              <div key={index} className="row">
-                <div className="column">
-                  <label>Название виллы:</label>
-                  <input
-                    className="input-field"
-                    value={villa.name}
-                    onChange={(e) => handleVillaChange(index, "name", e.target.value)}
-                  />
-                </div>
-                <div className="column">
-                  <label>Площадь (м²):</label>
-                  <input
-                    className="input-field"
-                    type="number"
-                    value={villa.area}
-                    onChange={(e) => handleVillaChange(index, "area", e.target.value)}
-                  />
-                </div>
-                <div className="column">
-                  <label>Количество:</label>
-                  <input
-                    className="input-field"
-                    type="number"
-                    value={villa.count}
-                    onChange={(e) => handleVillaChange(index, "count", e.target.value)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        );
+      // Функция для учета продаж
+      const addSale = (villaId, saleProgress) => {
+        setSales([...sales, { villaId, saleProgress }]);
       };
 
-      // Компонент для ввода данных о расходах
-      const ExpenseForm = () => {
-        const [month, setMonth] = useState("");
-        const [amount, setAmount] = useState(0);
-        const [year, setYear] = useState(new Date().getFullYear());
+      // Расчет общей площади всех вилл
+      const totalArea = useMemo(() => villaTypes.reduce((sum, villa) => sum + (villa.area * villa.count), 0), [villaTypes]);
 
-        const handleSubmitInvestorExpense = (e) => {
-          e.preventDefault();
-          if (month && amount && year) {
-            handleInvestorExpenseChange(month, amount, year);
-            setMonth("");
-            setAmount(0);
-          }
-        };
-
-        const handleSubmitTotalExpense = (e) => {
-          e.preventDefault();
-          if (month && amount && year) {
-            handleTotalExpenseChange(month, amount, year);
-            setMonth("");
-            setAmount(0);
-          }
-        };
-
-        return (
-          <div className="card">
-            <h2 className="card-title">Ввод затрат</h2>
-
-            <h3>Затраты инвестора</h3>
-            <form onSubmit={handleSubmitInvestorExpense}>
-              <input
-                type="text"
-                placeholder="Месяц"
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-                className="input-field"
-              />
-              <input
-                type="number"
-                placeholder="Сумма"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="input-field"
-              />
-              <input
-                type="number"
-                placeholder="Год"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                className="input-field"
-              />
-              <button type="submit" className="button">Добавить расходы инвестора</button>
-            </form>
-
-            <h3>Общие затраты по проекту</h3>
-            <form onSubmit={handleSubmitTotalExpense}>
-              <input
-                type="text"
-                placeholder="Месяц"
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-                className="input-field"
-              />
-              <input
-                type="number"
-                placeholder="Сумма"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="input-field"
-              />
-              <input
-                type="number"
-                placeholder="Год"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                className="input-field"
-              />
-              <button type="submit" className="button">Добавить общие затраты</button>
-            </form>
-
-            <h3>Целевая доходность (%)</h3>
-            <input
-              type="number"
-              value={interestRate}
-              onChange={(e) => setInterestRate(e.target.value)}
-              className="input-field"
-            />
-          </div>
-        );
+      // Расчет стоимости виллы с учетом доходности
+      const calculateVillaPrice = () => {
+        const totalInvested = investorExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+        const profit = totalInvested * (interestRate / 100);
+        return baseCostPerM2 + profit / totalArea;
       };
 
-      // Компонент для расчетов
-      const VillaCalculation = () => {
-        const totalArea = villaTypes.reduce((total, villa) => total + villa.area * villa.count, 0);
-        const totalCost = totalArea * 1200; // Себестоимость квадратного метра
+      // Рассчитываем сколько из наших средств использовано
+      const calculateInvestorUsage = () => {
+        let usedInvestorMoney = 0;
+        let remainingInvestorMoney = investorExpenses.reduce((sum, expense) => sum + expense.amount, 0);
 
-        const priceAt100 = totalCost + (totalCost * interestRate / 100);
+        sales.forEach((sale) => {
+          const villa = villaTypes.find(v => v.id === sale.villaId);
+          const villaPrice = villa.area * calculateVillaPrice();
+          const usedMoney = villaPrice * (sale.saleProgress / 100);
+          remainingInvestorMoney -= usedMoney;
+        });
 
-        return (
-          <div className="card">
-            <h2 className="card-title">Резюме проекта</h2>
-            <p>Общие расходы на проект: ${totalCost}</p>
-            <p>Общая площадь всех вилл: {totalArea} м²</p>
-            <h3>Стоимость виллы</h3>
-            <p>Цена 1 м²: ${priceAt100}</p>
-          </div>
-        );
+        usedInvestorMoney = remainingInvestorMoney < 0 ? 0 : remainingInvestorMoney;
+        return usedInvestorMoney;
+      };
+
+      // Получаем итоговую цену за 1 м²
+      const calculatePricePerSquareMeter = () => {
+        const totalCost = totalArea * baseCostPerM2;
+        const investorUsage = calculateInvestorUsage();
+        return totalCost / totalArea + (investorUsage / totalArea);
       };
 
       return (
         <div className="app-container">
           <h1>Расчет стоимости виллы</h1>
-          <ExpenseForm />
-          <VillaTypesForm />
-          <VillaCalculation />
+
+          {/* Форма для ввода типов вилл */}
+          <div className="card">
+            <h2 className="card-title">Типы вилл</h2>
+            {villaTypes.map((villa, index) => (
+              <div key={villa.id} className="type-villa">
+                <label>Название виллы:</label>
+                <input
+                  className="input-field"
+                  value={villa.name}
+                  onChange={(e) => {
+                    const updatedVillaTypes = [...villaTypes];
+                    updatedVillaTypes[index].name = e.target.value;
+                    setVillaTypes(updatedVillaTypes);
+                  }}
+                />
+                <label>Площадь (м²):</label>
+                <input
+                  className="input-field"
+                  type="number"
+                  value={villa.area}
+                  onChange={(e) => {
+                    const updatedVillaTypes = [...villaTypes];
+                    updatedVillaTypes[index].area = e.target.value;
+                    setVillaTypes(updatedVillaTypes);
+                  }}
+                />
+                <label>Количество:</label>
+                <input
+                  className="input-field"
+                  type="number"
+                  value={villa.count}
+                  onChange={(e) => {
+                    const updatedVillaTypes = [...villaTypes];
+                    updatedVillaTypes[index].count = e.target.value;
+                    setVillaTypes(updatedVillaTypes);
+                  }}
+                />
+              </div>
+            ))}
+            <button className="button button-add" onClick={addVillaType}>+ Добавить тип виллы</button>
+          </div>
+
+          {/* Форма для ввода затрат инвестора */}
+          <div className="card">
+            <h2 className="card-title">Затраты инвестора</h2>
+            <input
+              className="input-field"
+              type="text"
+              placeholder="Месяц"
+              id="month"
+            />
+            <input
+              className="input-field"
+              type="number"
+              placeholder="Сумма"
+              id="investorAmount"
+            />
+            <input
+              className="input-field"
+              type="number"
+              placeholder="Год"
+              id="year"
+            />
+            <button
+              className="button"
+              onClick={() => {
+                const month = document.getElementById("month").value;
+                const amount = document.getElementById("investorAmount").value;
+                const year = document.getElementById("year").value;
+                addInvestorExpense(month, year, amount);
+              }}
+            >
+              Добавить затраты инвестора
+            </button>
+          </div>
+
+          {/* Форма для ввода общих затрат */}
+          <div className="card">
+            <h2 className="card-title">Общие затраты</h2>
+            <input
+              className="input-field"
+              type="text"
+              placeholder="Месяц"
+              id="totalMonth"
+            />
+            <input
+              className="input-field"
+              type="number"
+              placeholder="Сумма"
+              id="totalAmount"
+            />
+            <input
+              className="input-field"
+              type="number"
+              placeholder="Год"
+              id="totalYear"
+            />
+            <button
+              className="button"
+              onClick={() => {
+                const month = document.getElementById("totalMonth").value;
+                const amount = document.getElementById("totalAmount").value;
+                const year = document.getElementById("totalYear").value;
+                addTotalExpense(month, year, amount);
+              }}
+            >
+              Добавить общие затраты
+            </button>
+          </div>
+
+          {/* Форма для ввода продаж */}
+          <div className="card">
+            <h2 className="card-title">Продажи</h2>
+            <input
+              className="input-field"
+              type="text"
+              placeholder="Тип виллы (1, 2, 3)"
+              id="villaId"
+            />
+            <input
+              className="input-field"
+              type="number"
+              placeholder="Прогресс продажи (%)"
+              id="saleProgress"
+            />
+            <button
+              className="button"
+              onClick={() => {
+                const villaId = document.getElementById("villaId").value;
+                const saleProgress = document.getElementById("saleProgress").value;
+                addSale(villaId, saleProgress);
+              }}
+            >
+              Добавить продажу
+            </button>
+          </div>
+
+          {/* Калькуляция стоимости */}
+          <div className="card">
+            <h2 className="card-title">Результат расчета</h2>
+            <p>Общая площадь всех вилл: {totalArea} м²</p>
+            <p>Цена за 1 м²: ${calculateVillaPrice().toFixed(2)}</p>
+          </div>
         </div>
       );
     }

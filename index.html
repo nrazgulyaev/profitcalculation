@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Приложение - Расчет стоимости виллы</title>
+    <style>
+        /* Общие стили */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .app-container {
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Форма */
+        .form-container {
+            margin-bottom: 30px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Рассчитанные данные */
+        .calculation-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@17.0.2/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+
+    <script type="text/babel">
+        // Главный компонент
+        function App() {
+            const [villaTypes, setVillaTypes] = React.useState([
+                { type: "Малые", area: 142.7, quantity: 6 },
+                { type: "Средние", area: 192, quantity: 2 },
+                { type: "Большие", area: 201, quantity: 1 }
+            ]);
+            const [interestRate, setInterestRate] = React.useState(8.33); // Доходность на капитал
+            const [investorExpenses, setInvestorExpenses] = React.useState([]);
+            const [totalExpenses, setTotalExpenses] = React.useState([]);
+            const [totalSpent, setTotalSpent] = React.useState(0);
+
+            const [partners, setPartners] = React.useState({
+                investor: 90,
+                manager: 10
+            });
+
+            // Обработчик добавления затрат инвестора
+            const handleInvestorExpenseChange = (month, amount, year) => {
+                setInvestorExpenses((prev) => [...prev, { month, amount: parseFloat(amount), year }]);
+                setTotalSpent((prev) => prev + parseFloat(amount));
+            };
+
+            // Обработчик добавления общих затрат
+            const handleTotalExpenseChange = (month, amount, year) => {
+                setTotalExpenses((prev) => [...prev, { month, amount: parseFloat(amount), year }]);
+            };
+
+            // Обработчик изменения доходности
+            const handleInterestRateChange = (newRate) => {
+                setInterestRate(newRate);
+            };
+
+            // Компонент формы для ввода данных о расходах
+            const ExpenseForm = ({ onInvestorExpenseChange, onTotalExpenseChange, onInterestRateChange, interestRate }) => {
+                const [month, setMonth] = React.useState("");
+                const [amount, setAmount] = React.useState(0);
+                const [year, setYear] = React.useState(new Date().getFullYear());
+
+                const handleInvestorExpenseSubmit = (e) => {
+                    e.preventDefault();
+                    if (month && amount && year) {
+                        onInvestorExpenseChange(month, amount, year);
+                        setMonth("");
+                        setAmount(0);
+                    }
+                };
+
+                const handleTotalExpenseSubmit = (e) => {
+                    e.preventDefault();
+                    if (month && amount && year) {
+                        onTotalExpenseChange(month, amount, year);
+                        setMonth("");
+                        setAmount(0);
+                    }
+                };
+
+                const handleInterestRateChangeLocal = (e) => {
+                    onInterestRateChange(e.target.value);
+                };
+
+                return (
+                    <div className="form-container">
+                        <h2>Ввод данных о расходах</h2>
+
+                        <h3>Затраты инвестора</h3>
+                        <form onSubmit={handleInvestorExpenseSubmit}>
+                            <input
+                                type="text"
+                                placeholder="Месяц (например, Январь)"
+                                value={month}
+                                onChange={(e) => setMonth(e.target.value)}
+                                className="input-field"
+                            />
+                            <input
+                                type="number"
+                                placeholder="Сумма"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                className="input-field"
+                            />
+                            <input
+                                type="number"
+                                placeholder="Год"
+                                value={year}
+                                onChange={(e) => setYear(e.target.value)}
+                                className="input-field"
+                            />
+                            <button type="submit">Добавить расходы инвестора</button>
+                        </form>
+
+                        <h3>Общие затраты по проекту</h3>
+                        <form onSubmit={handleTotalExpenseSubmit}>
+                            <input
+                                type="text"
+                                placeholder="Месяц (например, Январь)"
+                                value={month}
+                                onChange={(e) => setMonth(e.target.value)}
+                                className="input-field"
+                            />
+                            <input
+                                type="number"
+                                placeholder="Сумма"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                className="input-field"
+                            />
+                            <input
+                                type="number"
+                                placeholder="Год"
+                                value={year}
+                                onChange={(e) => setYear(e.target.value)}
+                                className="input-field"
+                            />
+                            <button type="submit">Добавить общие затраты</button>
+                        </form>
+
+                        <h3>Целевая доходность (%)</h3>
+                        <input
+                            type="number"
+                            value={interestRate}
+                            onChange={handleInterestRateChangeLocal}
+                            className="input-field"
+                        />
+                    </div>
+                );
+            };
+
+            // Компонент для расчетов
+            const VillaCalculation = ({ investorExpenses, totalExpenses, interestRate, villaTypes }) => {
+                const calculateTotalArea = () => {
+                    return villaTypes.reduce((total, villa) => total + villa.area * villa.quantity, 0);
+                };
+
+                const calculateInvestorProfit = (investorExpenses, interestRate) => {
+                    let totalProfit = 0;
+                    investorExpenses.forEach((expense) => {
+                        totalProfit += expense.amount * (interestRate / 100);
+                    });
+                    return totalProfit;
+                };
+
+                const calculateTotalCost = (totalExpenses) => {
+                    let totalCost = 0;
+                    totalExpenses.forEach((expense) => {
+                        totalCost += expense.amount;
+                    });
+                    return totalCost;
+                };
+
+                const totalArea = calculateTotalArea();
+                const investorProfit = calculateInvestorProfit(investorExpenses, interestRate);
+                const totalCost = calculateTotalCost(totalExpenses);
+
+                const baseCostPerSquareMeter = 1200; // Себестоимость квадратного метра
+
+                // Рассчитываем цену виллы для каждого типа
+                const priceSmallVilla = (baseCostPerSquareMeter + investorProfit / totalArea) * villaTypes[0].area;
+                const priceMediumVilla = (baseCostPerSquareMeter + investorProfit / totalArea) * villaTypes[1].area;
+                const priceLargeVilla = (baseCostPerSquareMeter + investorProfit / totalArea) * villaTypes[2].area;
+
+                return (
+                    <div>
+                        <h2>Резюме проекта</h2>
+                        <p>Общие расходы на проект: ${totalCost}</p>
+                        <p>Общая площадь всех вилл: {totalArea} м²</p>
+                        <h3>Стоимость виллы</h3>
+                        <p>Малая вилла (142,7 м²): ${priceSmallVilla.toFixed(2)}</p>
+                        <p>Средняя вилла (192 м²): ${priceMediumVilla.toFixed(2)}</p>
+                        <p>Большая вилла (201 м²): ${priceLargeVilla.toFixed(2)}</p>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="app-container">
+                    <h1>Расчет стоимости виллы</h1>
+                    <ExpenseForm
+                        onInvestorExpenseChange={handleInvestorExpenseChange}
+                        onTotalExpenseChange={handleTotalExpenseChange}
+                        onInterestRateChange={handleInterestRateChange}
+                        interestRate={interestRate}
+                    />
+                    <VillaCalculation
+                        investorExpenses={investorExpenses}
+                        totalExpenses={totalExpenses}
+                        interestRate={interestRate}
+                        villaTypes={villaTypes}
+                    />
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById("root"));
+    </script>
+</body>
+</html>

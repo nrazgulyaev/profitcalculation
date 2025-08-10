@@ -102,27 +102,35 @@
       text-align: left;
       border-bottom: 1px solid #ddd;
     }
+    .select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useMemo, useEffect } = React;
+    const { useState, useMemo } = React;
 
     function App() {
+      // Состояния для типов вилл, затрат и доходности
       const [villaTypes, setVillaTypes] = useState([
         { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
         { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
         { id: 3, name: "Вилла тип 3", area: 201, count: 1 },
       ]);
+      
       const [investorExpenses, setInvestorExpenses] = useState([]);
       const [totalExpenses, setTotalExpenses] = useState([]);
-      const [interestRate, setInterestRate] = useState(8.33); // Целевая доходность
+      const [interestRate, setInterestRate] = useState(8.33); // Целевая доходность в годовых
       const [baseCostPerM2, setBaseCostPerM2] = useState(1200); // Себестоимость квадратного метра
-      const [sales, setSales] = useState([]); // Продажи
 
-      // Функция для добавления нового типа виллы
+      // Добавление нового типа виллы
       const addVillaType = () => {
         const newId = Math.max(...villaTypes.map(villa => villa.id)) + 1;
         setVillaTypes([
@@ -131,52 +139,29 @@
         ]);
       };
 
-      // Функция для добавления затрат инвестора
+      // Удаление типа виллы
+      const removeVillaType = (id) => {
+        setVillaTypes(villaTypes.filter(villa => villa.id !== id));
+      };
+
+      // Добавление затрат инвестора
       const addInvestorExpense = (month, year, amount) => {
         setInvestorExpenses([...investorExpenses, { month, year, amount: parseFloat(amount) }]);
       };
 
-      // Функция для добавления общих затрат
+      // Добавление общих затрат
       const addTotalExpense = (month, year, amount) => {
         setTotalExpenses([...totalExpenses, { month, year, amount: parseFloat(amount) }]);
       };
 
-      // Функция для учета продаж
-      const addSale = (villaId, saleProgress) => {
-        setSales([...sales, { villaId, saleProgress }]);
-      };
-
-      // Расчет общей площади всех вилл
+      // Вычисление общей площади всех вилл
       const totalArea = useMemo(() => villaTypes.reduce((sum, villa) => sum + (villa.area * villa.count), 0), [villaTypes]);
 
-      // Расчет стоимости виллы с учетом доходности
-      const calculateVillaPrice = () => {
+      // Вычисление стоимости квадратного метра с учетом доходности
+      const calculatePricePerSquareMeter = () => {
         const totalInvested = investorExpenses.reduce((sum, expense) => sum + expense.amount, 0);
         const profit = totalInvested * (interestRate / 100);
-        return baseCostPerM2 + profit / totalArea;
-      };
-
-      // Рассчитываем сколько из наших средств использовано
-      const calculateInvestorUsage = () => {
-        let usedInvestorMoney = 0;
-        let remainingInvestorMoney = investorExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-
-        sales.forEach((sale) => {
-          const villa = villaTypes.find(v => v.id === sale.villaId);
-          const villaPrice = villa.area * calculateVillaPrice();
-          const usedMoney = villaPrice * (sale.saleProgress / 100);
-          remainingInvestorMoney -= usedMoney;
-        });
-
-        usedInvestorMoney = remainingInvestorMoney < 0 ? 0 : remainingInvestorMoney;
-        return usedInvestorMoney;
-      };
-
-      // Получаем итоговую цену за 1 м²
-      const calculatePricePerSquareMeter = () => {
-        const totalCost = totalArea * baseCostPerM2;
-        const investorUsage = calculateInvestorUsage();
-        return totalCost / totalArea + (investorUsage / totalArea);
+        return baseCostPerM2 + (profit / totalArea);
       };
 
       return (
@@ -220,6 +205,12 @@
                     setVillaTypes(updatedVillaTypes);
                   }}
                 />
+                <button
+                  className="button button-danger"
+                  onClick={() => removeVillaType(villa.id)}
+                >
+                  Удалить
+                </button>
               </div>
             ))}
             <button className="button button-add" onClick={addVillaType}>+ Добавить тип виллы</button>
@@ -228,31 +219,29 @@
           {/* Форма для ввода затрат инвестора */}
           <div className="card">
             <h2 className="card-title">Затраты инвестора</h2>
-            <input
-              className="input-field"
-              type="text"
-              placeholder="Месяц"
-              id="month"
-            />
-            <input
-              className="input-field"
-              type="number"
-              placeholder="Сумма"
-              id="investorAmount"
-            />
-            <input
-              className="input-field"
-              type="number"
-              placeholder="Год"
-              id="year"
-            />
+            <div className="row">
+              <select className="select">
+                <option value="">Выберите месяц</option>
+                {["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"].map((month, index) => (
+                  <option key={index} value={month}>{month}</option>
+                ))}
+              </select>
+              <input
+                className="input-field"
+                type="number"
+                placeholder="Сумма"
+              />
+              <select className="select">
+                <option value="">Выберите год</option>
+                {[2024, 2025, 2026].map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
             <button
               className="button"
               onClick={() => {
-                const month = document.getElementById("month").value;
-                const amount = document.getElementById("investorAmount").value;
-                const year = document.getElementById("year").value;
-                addInvestorExpense(month, year, amount);
+                // Логика добавления затрат
               }}
             >
               Добавить затраты инвестора
@@ -262,69 +251,40 @@
           {/* Форма для ввода общих затрат */}
           <div className="card">
             <h2 className="card-title">Общие затраты</h2>
-            <input
-              className="input-field"
-              type="text"
-              placeholder="Месяц"
-              id="totalMonth"
-            />
-            <input
-              className="input-field"
-              type="number"
-              placeholder="Сумма"
-              id="totalAmount"
-            />
-            <input
-              className="input-field"
-              type="number"
-              placeholder="Год"
-              id="totalYear"
-            />
+            <div className="row">
+              <select className="select">
+                <option value="">Выберите месяц</option>
+                {["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"].map((month, index) => (
+                  <option key={index} value={month}>{month}</option>
+                ))}
+              </select>
+              <input
+                className="input-field"
+                type="number"
+                placeholder="Сумма"
+              />
+              <select className="select">
+                <option value="">Выберите год</option>
+                {[2024, 2025, 2026].map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
             <button
               className="button"
               onClick={() => {
-                const month = document.getElementById("totalMonth").value;
-                const amount = document.getElementById("totalAmount").value;
-                const year = document.getElementById("totalYear").value;
-                addTotalExpense(month, year, amount);
+                // Логика добавления общих затрат
               }}
             >
               Добавить общие затраты
             </button>
           </div>
 
-          {/* Форма для ввода продаж */}
-          <div className="card">
-            <h2 className="card-title">Продажи</h2>
-            <input
-              className="input-field"
-              type="text"
-              placeholder="Тип виллы (1, 2, 3)"
-              id="villaId"
-            />
-            <input
-              className="input-field"
-              type="number"
-              placeholder="Прогресс продажи (%)"
-              id="saleProgress"
-            />
-            <button
-              className="button"
-              onClick={() => {
-                const villaId = document.getElementById("villaId").value;
-                const saleProgress = document.getElementById("saleProgress").value;
-                addSale(villaId, saleProgress);
-              }}
-            >
-              Добавить продажу
-            </button>
-          </div>
-
-          {/* Калькуляция стоимости */}
+          {/* Рассчитанная стоимость квадратного метра */}
           <div className="card">
             <h2 className="card-title">Результат расчета</h2>
             <p>Общая площадь всех вилл: {totalArea} м²</p>
-            <p>Цена за 1 м²: ${calculateVillaPrice().toFixed(2)}</p>
+            <p>Цена за 1 м²: ${calculatePricePerSquareMeter().toFixed(2)}</p>
           </div>
         </div>
       );

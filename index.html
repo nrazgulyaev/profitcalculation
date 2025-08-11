@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arconic · Villa Revenue & Asset Split</title>
+  <title>Arcoonic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    /* Основные стили */
     * {
       margin: 0;
       padding: 0;
@@ -17,24 +16,26 @@
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f4f7fb;
+      font-family: 'Roboto', sans-serif;
+      background-color: #f3f4f6;
       color: #333;
-      margin: 0;
-      padding: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    /* Контейнер */
     .container {
+      width: 100%;
       max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
+      padding: 32px;
       background-color: #fff;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
     }
 
-    /* Заголовок */
     .header {
       display: flex;
       justify-content: space-between;
@@ -45,7 +46,6 @@
     .header h1 {
       font-size: 24px;
       font-weight: 600;
-      color: #4CAF50;
     }
 
     .header input {
@@ -56,7 +56,6 @@
       margin-left: 16px;
     }
 
-    /* Панель инструментов */
     .toolbar {
       display: flex;
       flex-wrap: wrap;
@@ -75,12 +74,6 @@
       font-size: 14px;
       font-weight: 500;
       margin-bottom: 8px;
-    }
-
-    .toolbarItem .subText {
-      font-size: 12px;
-      color: #777;
-      margin-top: 4px;
     }
 
     .input, .select {
@@ -141,7 +134,6 @@
       background-color: #f1f5f9;
     }
 
-    /* Футер */
     .footer {
       text-align: center;
       font-size: 14px;
@@ -169,6 +161,7 @@
       border-radius: 8px;
       border: 1px solid #ddd;
     }
+
   </style>
 </head>
 <body>
@@ -178,7 +171,6 @@
     const { useState, useMemo, useEffect } = React;
 
     function VillaRevenueSplitApp() {
-      // -------- ИСХОДНЫЕ ДАННЫЕ --------
       const [types, setTypes] = useState([
         { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
         { id: 2, name: "Вилла тип 2", area: 192, count: 2 },

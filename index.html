@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arconic · Vilcla Revenue & Asset Split</title>
+  <title>Arconic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -47,6 +47,18 @@
       font-size: 30px;
       font-weight: 600;
       color: #4CAF50;
+    }
+
+    .header input {
+      padding: 10px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+    }
+
+    .header input:focus {
+      border-color: #4CAF50;
     }
 
     .toolbar {
@@ -152,40 +164,18 @@
       text-decoration: underline;
     }
 
-    /* Новый стиль для стоимости вилл */
-    .villaValueSection {
-      margin-top: 40px;
-      padding: 20px;
-      background-color: #fafafa;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .villaValueSection h2 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      color: #4CAF50;
-    }
-
-    .villaValueCard {
+    .datePicker {
       display: flex;
-      justify-content: space-between;
-      padding: 12px 24px;
-      margin: 8px 0;
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      gap: 8px;
     }
 
-    .villaValueCard span {
-      font-size: 16px;
+    .datePicker select {
+      padding: 10px 14px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
     }
 
-    .villaValueCard .value {
-      font-weight: 600;
-      color: #333;
-    }
   </style>
 </head>
 <body>
@@ -269,7 +259,8 @@
             growth,
             cumulativeGrowth,
             markupPerM2,
-            marketPrice
+            marketPrice,
+            marketPriceWithTaxAndCommission: marketPrice / 0.85 // Цена с учетом налога и комиссии
           };
         });
         return results;
@@ -277,55 +268,147 @@
 
       const results = calculateResults();
 
-      // Стоимость вилл по типам
-      const villaValues = useMemo(() => {
-        return types.map((type) => {
-          const marketPriceForVilla = type.area * type.count * results.find(result => result.month === `${currentMonth} ${currentYear}`).marketPrice;
+      const calculateVillaValue = () => {
+        const villaValues = types.map(type => {
+          const villaBasePrice = basePrice * type.area;
+          const totalVillaPrice = villaBasePrice / 0.85; // Учитываем комиссию и налог
           return {
             name: type.name,
-            totalValue: marketPriceForVilla
+            area: type.area,
+            count: type.count,
+            totalPrice: totalVillaPrice * type.count
           };
         });
-      }, [types, results, currentMonth, currentYear]);
+        return villaValues;
+      };
+
+      const villaValues = calculateVillaValue();
 
       return (
         <div className="container">
           <div className="header">
             <h1>Arconic · Villa Revenue & Asset Split</h1>
+            <div>
+              <div>
+                <label>Базовая цена за м²</label>
+                <input 
+                  type="number" 
+                  value={basePrice} 
+                  onChange={(e) => setBasePrice(Number(e.target.value))} 
+                  placeholder="Введите базовую цену"
+                />
+                <div className="subText">Это цена за 1 м² для расчета рыночной стоимости.</div>
+              </div>
+              <div>
+                <label>Целевая доходность (%)</label>
+                <input 
+                  type="number" 
+                  value={growthRate} 
+                  onChange={(e) => setGrowthRate(Number(e.target.value))} 
+                  placeholder="Введите доходность"
+                />
+                <div className="subText">Целевая доходность в годовых процентах.</div>
+              </div>
+            </div>
           </div>
 
           <div className="toolbar">
             <div className="toolbarItem">
-              <label>Базовая цена за м²</label>
-              <input 
-                type="number" 
-                value={basePrice} 
-                onChange={(e) => setBasePrice(Number(e.target.value))} 
-                placeholder="Введите базовую цену"
-              />
-              <div className="subText">Это цена за 1 м² для расчета рыночной стоимости.</div>
+              <label>Типы вилл</label>
+              {types.map((type, index) => (
+                <div key={type.id}>
+                  <input 
+                    type="text" 
+                    value={type.name} 
+                    onChange={(e) => {
+                      const updatedTypes = [...types];
+                      updatedTypes[index].name = e.target.value;
+                      setTypes(updatedTypes);
+                    }} 
+                    placeholder="Название виллы"
+                  />
+                  <input 
+                    type="number" 
+                    value={type.area} 
+                    onChange={(e) => {
+                      const updatedTypes = [...types];
+                      updatedTypes[index].area = Number(e.target.value);
+                      setTypes(updatedTypes);
+                    }} 
+                    placeholder="Площадь"
+                  />
+                  <input 
+                    type="number" 
+                    value={type.count} 
+                    onChange={(e) => {
+                      const updatedTypes = [...types];
+                      updatedTypes[index].count = Number(e.target.value);
+                      setTypes(updatedTypes);
+                    }} 
+                    placeholder="Количество"
+                  />
+                  <button 
+                    className="btnSmallDanger" 
+                    onClick={() => {
+                      const updatedTypes = types.filter((_, i) => i !== index);
+                      setTypes(updatedTypes);
+                    }}
+                  >
+                    Удалить
+                  </button>
+                </div>
+              ))}
+              <button 
+                className="btnSmall" 
+                onClick={() => setTypes([...types, { id: types.length + 1, name: "", area: 100, count: 1 }])}
+              >
+                + Добавить тип виллы
+              </button>
             </div>
             <div className="toolbarItem">
-              <label>Целевая доходность (%)</label>
-              <input 
-                type="number" 
-                value={growthRate} 
-                onChange={(e) => setGrowthRate(Number(e.target.value))} 
-                placeholder="Введите доходность"
-              />
-              <div className="subText">Целевая доходность в годовых процентах.</div>
+              <label>Ежемесячные затраты</label>
+              {expenses.map((expense, index) => (
+                <div key={index}>
+                  <div className="datePicker">
+                    <select 
+                      value={expense.month} 
+                      onChange={(e) => updateExpense(index, 'month', e.target.value)} 
+                      className="select"
+                    >
+                      {monthsList.map((month, idx) => (
+                        <option key={idx} value={month}>{month}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <input 
+                    type="number" 
+                    value={expense.amount} 
+                    onChange={(e) => updateExpense(index, 'amount', Number(e.target.value))}
+                    className="input"
+                    placeholder="Сумма"
+                  />
+                  <button 
+                    className="btnSmallDanger" 
+                    onClick={() => {
+                      const updatedExpenses = expenses.filter((_, i) => i !== index);
+                      setExpenses(updatedExpenses);
+                      localStorage.setItem('expenses', JSON.stringify(updatedExpenses.reduce((acc, expense) => {
+                        acc[expense.month] = expense.amount;
+                        return acc;
+                      }, {})));
+                    }}
+                  >
+                    Удалить
+                  </button>
+                </div>
+              ))}
+              <button className="btnSmall" onClick={() => {
+                const newMonth = monthsList[monthsList.length - 1];
+                setExpenses([...expenses, { month: newMonth, amount: 0 }]);
+              }}>
+                + Добавить расходы
+              </button>
             </div>
-          </div>
-
-          {/* Новый блок с стоимостью вилл по типам */}
-          <div className="villaValueSection">
-            <h2>Стоимость вилл по типам на текущую дату</h2>
-            {villaValues.map((villa, index) => (
-              <div className="villaValueCard" key={index}>
-                <span>{villa.name}</span>
-                <span className="value">${villa.totalValue.toLocaleString()}</span>
-              </div>
-            ))}
           </div>
 
           <table className="table">
@@ -337,6 +420,7 @@
                 <th>Накопленная доходность</th>
                 <th>Наценка на 1 м²</th>
                 <th>Рыночная цена</th>
+                <th>Рыночная цена с налогом и комиссией</th> {/* Новая колонка */}
               </tr>
             </thead>
             <tbody>
@@ -348,6 +432,29 @@
                   <td>{result.cumulativeGrowth.toLocaleString()}</td>
                   <td>{result.markupPerM2.toLocaleString()}</td>
                   <td>{result.marketPrice.toLocaleString()}</td>
+                  <td>{result.marketPriceWithTaxAndCommission.toLocaleString()}</td> {/* Добавленная ячейка */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <h2>Стоимость вилл по типам на текущую дату</h2>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Тип виллы</th>
+                <th>Площадь</th>
+                <th>Количество</th>
+                <th>Итоговая стоимость</th>
+              </tr>
+            </thead>
+            <tbody>
+              {villaValues.map((villa, index) => (
+                <tr key={index}>
+                  <td>{villa.name}</td>
+                  <td>{villa.area} м²</td>
+                  <td>{villa.count}</td>
+                  <td>{villa.totalPrice.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>

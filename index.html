@@ -1,366 +1,178 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Villa Revenue & Asset Split Calculator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arconic · Villa Revenue & Asset Split</title>
+  <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f7fa;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-
-    header {
-      background-color: #00796b;
-      padding: 20px;
-      color: white;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 20px;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .input-group {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    .input-group input,
-    .input-group select {
-      padding: 10px;
-      width: 100%;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-
-    .input-group label {
-      width: 150px;
-      font-weight: bold;
-    }
-
-    h2 {
-      color: #00796b;
-    }
-
-    .results {
-      background-color: #f1f8e9;
-      padding: 20px;
-      margin-top: 30px;
-      border-radius: 8px;
-    }
-
-    .results p {
-      font-size: 18px;
-      margin: 10px 0;
-    }
-
-    .results b {
-      color: #00796b;
-    }
-
-    .villa-list {
-      margin-top: 20px;
-    }
-
-    .villa-item {
-      margin-bottom: 15px;
-      padding: 10px;
-      background-color: #f9f9f9;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-
-    table {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-    }
-
-    table th, table td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-
-    table th {
-      background-color: #00796b;
-      color: white;
-    }
+    html,body,#root { height: 100%; margin: 0; }
+    .container { padding: 20px; }
+    .input { padding: 10px; margin: 5px; border-radius: 5px; }
+    .btn { padding: 10px; margin: 5px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .btn:hover { background-color: #45a049; }
+    .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .table th, .table td { padding: 10px; text-align: center; border: 1px solid #ddd; }
+    .table th { background-color: #f2f2f2; }
   </style>
 </head>
 <body>
-  <header>Villa Revenue & Asset Split Calculator</header>
-  <div class="container">
-    <h2>Типы вилл</h2>
-    <div id="villaTypes"></div>
-    <div class="input-group">
-      <button class="btn" id="addVillaBtn">Добавить тип виллы</button>
-    </div>
+  <div id="root"></div>
 
-    <h2>Ежемесячные затраты</h2>
-    <div id="monthlyExpenses"></div>
-    <div class="input-group">
-      <button class="btn" id="addExpenseBtn">Добавить затраты</button>
-    </div>
+  <script type="text/babel">
+    const { useState, useMemo, useEffect } = React;
 
-    <h2>Ввод целевой доходности и базовой стоимости</h2>
-    <div class="input-group">
-      <label for="growth-rate">Целевая доходность (%)</label>
-      <input type="number" id="growth-rate" value="100" placeholder="Введите доходность в %">
-    </div>
-    <div class="input-group">
-      <label for="cost-per-m2">Себестоимость (за м²)</label>
-      <input type="number" id="cost-per-m2" value="1200" placeholder="Введите себестоимость за м²">
-    </div>
+    function VillaRevenueSplitApp() {
+      // Данные по типам вилл
+      const [types, setTypes] = useState([
+        { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
+        { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
+        { id: 3, name: "Вилла тип 3", area: 201, count: 1 },
+      ]);
 
-    <h2>Текущий месяц</h2>
-    <div>
-      <p>Текущий месяц: <b id="currentMonth"></b></p>
-    </div>
+      // Основные параметры
+      const [basePrice, setBasePrice] = useState(2400); // Базовая цена за м²
+      const [growthRate, setGrowthRate] = useState(3);  // Рост цены 10%
+      const [costPerM2, setCostPerM2] = useState(1200); // Себестоимость за м²
 
-    <div id="results" class="results"></div>
-  </div>
+      // Затраты по месяцам
+      const [monthlyExpenses, setMonthlyExpenses] = useState([
+        { month: "Апрель 2024", year: 2024, amount: 47185 },
+        { month: "Май 2024", year: 2024, amount: 9254 },
+        { month: "Июнь 2024", year: 2024, amount: 0 },
+        { month: "Июль 2024", year: 2024, amount: 0 },
+        { month: "Август 2024", year: 2024, amount: 0 },
+        { month: "Сентябрь 2024", year: 2024, amount: 307 },
+        { month: "Октябрь 2024", year: 2024, amount: 15405 },
+        { month: "Ноябрь 2024", year: 2024, amount: 707 },
+        { month: "Декабрь 2024", year: 2024, amount: 9263 },
+        { month: "Январь 2025", year: 2025, amount: 9100 },
+        { month: "Февраль 2025", year: 2025, amount: 22945 },
+        { month: "Март 2025", year: 2025, amount: 20468 },
+        { month: "Апрель 2025", year: 2025, amount: 75649 },
+        { month: "Май 2025", year: 2025, amount: 87493 },
+        { month: "Июнь 2025", year: 2025, amount: 57927 },
+        { month: "Июль 2025", year: 2025, amount: 97982 },
+        { month: "Август 2025", year: 2025, amount: 43675 }
+      ]);
 
-  <script>
-    // Массивы для хранения типов вилл и ежемесячных затрат
-    let villaTypes = [
-      { id: Date.now() + 1, name: 'Вилла тип 1', area: 142.7, count: 6 },
-      { id: Date.now() + 2, name: 'Вилла тип 2', area: 192, count: 2 },
-      { id: Date.now() + 3, name: 'Вилла тип 3', area: 201, count: 1 }
-    ];
+      const [currentMonth, setCurrentMonth] = useState("Август 2025");
 
-    let monthlyExpenses = [
-      { id: Date.now() + 4, month: '04', year: '2024', amount: 47185 },
-      { id: Date.now() + 5, month: '05', year: '2024', amount: 9254 },
-      { id: Date.now() + 6, month: '06', year: '2024', amount: 0 },
-      { id: Date.now() + 7, month: '07', year: '2024', amount: 0 },
-      { id: Date.now() + 8, month: '08', year: '2024', amount: 0 },
-      { id: Date.now() + 9, month: '09', year: '2024', amount: 307 },
-      { id: Date.now() + 10, month: '10', year: '2024', amount: 15405 },
-      { id: Date.now() + 11, month: '11', year: '2024', amount: 707 },
-      { id: Date.now() + 12, month: '12', year: '2024', amount: 9263 },
-      { id: Date.now() + 13, month: '01', year: '2025', amount: 9100 },
-      { id: Date.now() + 14, month: '02', year: '2025', amount: 22945 },
-      { id: Date.now() + 15, month: '03', year: '2025', amount: 20468 },
-      { id: Date.now() + 16, month: '04', year: '2025', amount: 75649 },
-      { id: Date.now() + 17, month: '05', year: '2025', amount: 87493 },
-      { id: Date.now() + 18, month: '06', year: '2025', amount: 57927 },
-      { id: Date.now() + 19, month: '07', year: '2025', amount: 97982 },
-      { id: Date.now() + 20, month: '08', year: '2025', amount: 43675 }
-    ];
+      // Вычисления
+      const totalArea = useMemo(() => types.reduce((s, t) => s + t.area * t.count, 0), [types]);
+      const totalCost = useMemo(() => totalArea * costPerM2, [totalArea, costPerM2]);
 
-    // Функция для добавления нового типа виллы
-    document.getElementById('addVillaBtn').onclick = function() {
-      const villaId = Date.now();
-      villaTypes.push({ id: villaId, name: '', area: '', count: '' });
-      renderVillaTypes();
-      calculateResults(); // Вызов рассчета сразу после добавления
-    };
+      const monthlyIncome = useMemo(() => {
+        let totalIncome = 0;
+        monthlyExpenses.forEach((expense, idx) => {
+          totalIncome += expense.amount;
+        });
+        return totalIncome;
+      }, [monthlyExpenses]);
 
-    // Функция для удаления типа виллы
-    function removeVillaType(id) {
-      villaTypes = villaTypes.filter(villa => villa.id !== id);
-      renderVillaTypes();
-      calculateResults(); // Вызов рассчета сразу после удаления
-    }
+      const priceAtSale = useMemo(() => {
+        return basePrice * Math.pow(1 + growthRate / 100, 1); // Простой расчет стоимости с учетом роста
+      }, [basePrice, growthRate]);
 
-    // Функция для рендеринга списка типов вилл
-    function renderVillaTypes() {
-      const villaTypesContainer = document.getElementById('villaTypes');
-      villaTypesContainer.innerHTML = '';
+      const totalAmountSpent = useMemo(() => {
+        return monthlyExpenses.reduce((acc, exp) => acc + exp.amount, 0);
+      }, [monthlyExpenses]);
 
-      villaTypes.forEach(villa => {
-        villaTypesContainer.innerHTML += `
-          <div class="villa-item">
-            <input type="text" value="${villa.name}" placeholder="Тип виллы" onchange="updateVillaType(${villa.id}, 'name', this.value)">
-            <input type="number" value="${villa.area}" placeholder="Площадь (м²)" onchange="updateVillaType(${villa.id}, 'area', this.value)">
-            <input type="number" value="${villa.count}" placeholder="Количество" onchange="updateVillaType(${villa.id}, 'count', this.value)">
-            <button class="btn" onclick="removeVillaType(${villa.id})">Удалить</button>
+      const totalWithMarkup = useMemo(() => {
+        return basePrice + (totalAmountSpent / totalArea);
+      }, [totalAmountSpent, basePrice, totalArea]);
+
+      // Добавить новый тип виллы
+      const addType = () => {
+        const newType = { id: types.length + 1, name: `Вилла тип ${types.length + 1}`, area: 100, count: 1 };
+        setTypes(prev => [...prev, newType]);
+      };
+
+      // Добавить ежемесячные расходы
+      const addExpense = (month, year, amount) => {
+        const newExpense = { month, year, amount };
+        setMonthlyExpenses(prev => [...prev, newExpense]);
+      };
+
+      return (
+        <div className="container">
+          <h1>Калькулятор распределения выручки и активов проекта вилл</h1>
+
+          {/* Ввод данных */}
+          <div>
+            <h2>Типы вилл</h2>
+            <button onClick={addType}>Добавить тип виллы</button>
+            <ul>
+              {types.map(type => (
+                <li key={type.id}>
+                  {type.name} - Площадь: {type.area} м², Количество: {type.count}
+                </li>
+              ))}
+            </ul>
+
+            <h2>Ежемесячные расходы</h2>
+            <button onClick={() => addExpense("Август 2025", 2025, 43675)}>Добавить расходы Август 2025</button>
+            <ul>
+              {monthlyExpenses.map((expense, idx) => (
+                <li key={idx}>
+                  {expense.month} {expense.year} - {expense.amount} $
+                </li>
+              ))}
+            </ul>
+
+            <h2>Параметры</h2>
+            <label>
+              Базовая цена м²: 
+              <input 
+                type="number" 
+                value={basePrice} 
+                onChange={(e) => setBasePrice(e.target.value)} 
+                className="input"
+              />
+            </label>
+            <br />
+            <label>
+              Целевая доходность: 
+              <input 
+                type="number" 
+                value={growthRate} 
+                onChange={(e) => setGrowthRate(e.target.value)} 
+                className="input"
+              />
+            </label>
           </div>
-        `;
-      });
+
+          <h2>Результаты</h2>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Месяц</th>
+                <th>Затраты</th>
+                <th>Доходность</th>
+                <th>Цена м²</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{currentMonth}</td>
+                <td>{fmtMoney(totalAmountSpent)}</td>
+                <td>{fmtMoney(monthlyIncome)}</td>
+                <td>{fmtMoney(totalWithMarkup)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      );
     }
 
-    // Функция для обновления типа виллы
-    function updateVillaType(id, field, value) {
-      villaTypes = villaTypes.map(villa => {
-        if (villa.id === id) {
-          villa[field] = value;
-        }
-        return villa;
-      });
-      calculateResults(); // Вызов рассчета сразу после изменения
+    function fmtMoney(v) {
+      return Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    // Функция для добавления новых затрат по месяцам
-    document.getElementById('addExpenseBtn').onclick = function() {
-      const expenseId = Date.now();
-      monthlyExpenses.push({ id: expenseId, month: '', year: '', amount: '' });
-      renderMonthlyExpenses();
-      calculateResults(); // Вызов рассчета сразу после добавления
-    };
-
-    // Функция для удаления затрат по месяцам
-    function removeExpense(id) {
-      monthlyExpenses = monthlyExpenses.filter(expense => expense.id !== id);
-      renderMonthlyExpenses();
-      calculateResults(); // Вызов рассчета сразу после удаления
-    }
-
-    // Функция для рендеринга затрат по месяцам
-    function renderMonthlyExpenses() {
-      const expensesContainer = document.getElementById('monthlyExpenses');
-      expensesContainer.innerHTML = '';
-
-      monthlyExpenses.forEach(expense => {
-        expensesContainer.innerHTML += `
-          <div class="villa-item">
-            <select onchange="updateExpense(${expense.id}, 'month', this.value)">
-              <option value="">Выберите месяц</option>
-              ${getMonthOptions().map(month => `<option value="${month.value}" ${expense.month === month.value ? 'selected' : ''}>${month.label}</option>`).join('')}
-            </select>
-            <select onchange="updateExpense(${expense.id}, 'year', this.value)">
-              <option value="">Выберите год</option>
-              ${getYearOptions().map(year => `<option value="${year}" ${expense.year === year ? 'selected' : ''}>${year}</option>`).join('')}
-            </select>
-            <input type="number" value="${expense.amount}" placeholder="Затраты" onchange="updateExpense(${expense.id}, 'amount', this.value)">
-            <button class="btn" onclick="removeExpense(${expense.id})">Удалить</button>
-          </div>
-        `;
-      });
-    }
-
-    // Функция для обновления затрат по месяцам
-    function updateExpense(id, field, value) {
-      monthlyExpenses = monthlyExpenses.map(expense => {
-        if (expense.id === id) {
-          expense[field] = value;
-        }
-        return expense;
-      });
-      calculateResults(); // Вызов рассчета сразу после изменения
-    }
-
-    // Функция для получения списка месяцев
-    function getMonthOptions() {
-      return [
-        { label: 'Январь', value: '01' },
-        { label: 'Февраль', value: '02' },
-        { label: 'Март', value: '03' },
-        { label: 'Апрель', value: '04' },
-        { label: 'Май', value: '05' },
-        { label: 'Июнь', value: '06' },
-        { label: 'Июль', value: '07' },
-        { label: 'Август', value: '08' },
-        { label: 'Сентябрь', value: '09' },
-        { label: 'Октябрь', value: '10' },
-        { label: 'Ноябрь', value: '11' },
-        { label: 'Декабрь', value: '12' },
-      ];
-    }
-
-    // Функция для получения списка лет
-    function getYearOptions() {
-      const currentYear = new Date().getFullYear();
-      return [currentYear - 1, currentYear, currentYear + 1];
-    }
-
-    // Функция для вычисления всех данных и вывода результатов
-    function calculateResults() {
-      const growthRate = parseFloat(document.getElementById('growth-rate').value);
-      const costPerM2 = parseFloat(document.getElementById('cost-per-m2').value); // Себестоимость за м²
-
-      let totalArea = 0;
-      let totalCost = 0;
-      let totalRevenue = 0;
-
-      // Рассчитываем общую площадь и стоимость
-      villaTypes.forEach(villa => {
-        totalArea += parseFloat(villa.area) * parseInt(villa.count);
-      });
-      totalCost = totalArea * costPerM2;
-
-      // Рассчитываем доходность
-      monthlyExpenses.forEach(expense => {
-        totalRevenue += parseFloat(expense.amount) * (growthRate / 100);
-      });
-
-      // Наценка на 1 м²
-      const markupPerM2 = totalRevenue / totalArea;
-      // Рыночная стоимость за м²
-      const marketPricePerM2 = costPerM2 + markupPerM2;
-
-      // Выводим результаты
-      const results = `
-        <h2>Результаты расчета:</h2>
-        <p><b>Общая площадь всех вилл:</b> ${totalArea} м²</p>
-        <p><b>Общая себестоимость:</b> $${totalCost.toFixed(2)}</p>
-        <p><b>Наценка на 1 м²:</b> $${markupPerM2.toFixed(2)}</p>
-        <p><b>Предлагаемая рыночная стоимость м²:</b> $${marketPricePerM2.toFixed(2)}</p>
-
-        <h3>Таблица доходности и затрат:</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Месяц</th>
-              <th>Затраты ($)</th>
-              <th>Доходность ($)</th>
-              <th>Стоимость м² ($)</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${generateMonthlyTable()}
-          </tbody>
-        </table>
-      `;
-
-      document.getElementById('results').innerHTML = results;
-    }
-
-    // Функция для генерации строки таблицы с затратами и доходностью
-    function generateMonthlyTable() {
-      let tableRows = '';
-      let cumulativeGrowth = 0;
-
-      // Генерация данных по месяцам
-      getMonthOptions().forEach((month, index) => {
-        const monthExpenses = monthlyExpenses.find(exp => exp.month === month.value);
-        const expenseAmount = monthExpenses ? parseFloat(monthExpenses.amount) : 0;
-        cumulativeGrowth += expenseAmount * (parseFloat(document.getElementById('growth-rate').value) / 100);
-        const pricePerM2 = 1200 + cumulativeGrowth / totalArea;
-
-        tableRows += `
-          <tr>
-            <td>${month.label} ${new Date().getFullYear()}</td>
-            <td>$${expenseAmount.toFixed(2)}</td>
-            <td>$${cumulativeGrowth.toFixed(2)}</td>
-            <td>$${pricePerM2.toFixed(2)}</td>
-          </tr>
-        `;
-      });
-
-      return tableRows;
-    }
-
-    // Обновляем текущий месяц
-    document.getElementById('currentMonth').innerText = `Август 2025`;
-
-    // Инициализируем интерфейс с типами вилл и затрат
-    renderVillaTypes();
-    renderMonthlyExpenses();
-    calculateResults(); // Вызов расчетов на старте
+    ReactDOM.createRoot(document.getElementById("root")).render(<VillaRevenueSplitApp />);
   </script>
 </body>
 </html>

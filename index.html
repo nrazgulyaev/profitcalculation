@@ -17,28 +17,28 @@
     .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     .table th, .table td { padding: 10px; text-align: center; border: 1px solid #ddd; }
     .table th { background-color: #f2f2f2; }
+    .row { display: flex; gap: 20px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useMemo, useEffect } = React;
+    const { useState, useMemo } = React;
 
     function VillaRevenueSplitApp() {
-      // Данные по типам вилл
+      // Инициализация данных
       const [types, setTypes] = useState([
         { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
         { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
         { id: 3, name: "Вилла тип 3", area: 201, count: 1 },
       ]);
 
-      // Основные параметры
       const [basePrice, setBasePrice] = useState(2400); // Базовая цена за м²
       const [growthRate, setGrowthRate] = useState(3);  // Рост цены 10%
       const [costPerM2, setCostPerM2] = useState(1200); // Себестоимость за м²
 
-      // Затраты по месяцам
+      // Ежемесячные расходы
       const [monthlyExpenses, setMonthlyExpenses] = useState([
         { month: "Апрель 2024", year: 2024, amount: 47185 },
         { month: "Май 2024", year: 2024, amount: 9254 },
@@ -67,7 +67,7 @@
 
       const monthlyIncome = useMemo(() => {
         let totalIncome = 0;
-        monthlyExpenses.forEach((expense, idx) => {
+        monthlyExpenses.forEach((expense) => {
           totalIncome += expense.amount;
         });
         return totalIncome;
@@ -85,16 +85,31 @@
         return basePrice + (totalAmountSpent / totalArea);
       }, [totalAmountSpent, basePrice, totalArea]);
 
-      // Добавить новый тип виллы
-      const addType = () => {
-        const newType = { id: types.length + 1, name: `Вилла тип ${types.length + 1}`, area: 100, count: 1 };
-        setTypes(prev => [...prev, newType]);
+      // Функция для форматирования денег
+      const fmtMoney = (v) => {
+        return Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       };
 
-      // Добавить ежемесячные расходы
-      const addExpense = (month, year, amount) => {
-        const newExpense = { month, year, amount };
-        setMonthlyExpenses(prev => [...prev, newExpense]);
+      // Функция для отображения ежемесячных данных
+      const renderMonthlyData = () => {
+        let accumulatedCost = 0;
+        let accumulatedProfit = 0;
+        let accumulatedMarkup = 0;
+        
+        return monthlyExpenses.map((expense, idx) => {
+          accumulatedCost += expense.amount;
+          accumulatedProfit = accumulatedCost * growthRate / 100;
+          accumulatedMarkup = (accumulatedProfit + totalAmountSpent) / totalArea;
+
+          return (
+            <tr key={idx}>
+              <td>{expense.month} {expense.year}</td>
+              <td>{fmtMoney(expense.amount)}</td>
+              <td>{fmtMoney(accumulatedProfit)}</td>
+              <td>{fmtMoney(accumulatedMarkup)}</td>
+            </tr>
+          );
+        });
       };
 
       return (
@@ -104,17 +119,43 @@
           {/* Ввод данных */}
           <div>
             <h2>Типы вилл</h2>
-            <button onClick={addType}>Добавить тип виллы</button>
+            <button onClick={() => setTypes([...types, { id: types.length + 1, name: `Вилла тип ${types.length + 1}`, area: 100, count: 1 }])}>Добавить тип виллы</button>
             <ul>
               {types.map(type => (
                 <li key={type.id}>
-                  {type.name} - Площадь: {type.area} м², Количество: {type.count}
+                  {type.name} - Площадь: 
+                  <input 
+                    type="number" 
+                    value={type.area} 
+                    onChange={(e) => {
+                      const newTypes = types.map(t => {
+                        if (t.id === type.id) {
+                          t.area = parseFloat(e.target.value);
+                        }
+                        return t;
+                      });
+                      setTypes(newTypes);
+                    }}
+                  /> м², Количество: 
+                  <input 
+                    type="number" 
+                    value={type.count} 
+                    onChange={(e) => {
+                      const newTypes = types.map(t => {
+                        if (t.id === type.id) {
+                          t.count = parseInt(e.target.value, 10);
+                        }
+                        return t;
+                      });
+                      setTypes(newTypes);
+                    }}
+                  />
                 </li>
               ))}
             </ul>
 
             <h2>Ежемесячные расходы</h2>
-            <button onClick={() => addExpense("Август 2025", 2025, 43675)}>Добавить расходы Август 2025</button>
+            <button onClick={() => setMonthlyExpenses([...monthlyExpenses, { month: "Август 2025", year: 2025, amount: 43675 }])}>Добавить расходы Август 2025</button>
             <ul>
               {monthlyExpenses.map((expense, idx) => (
                 <li key={idx}>
@@ -156,20 +197,11 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>{currentMonth}</td>
-                <td>{fmtMoney(totalAmountSpent)}</td>
-                <td>{fmtMoney(monthlyIncome)}</td>
-                <td>{fmtMoney(totalWithMarkup)}</td>
-              </tr>
+              {renderMonthlyData()}
             </tbody>
           </table>
         </div>
       );
-    }
-
-    function fmtMoney(v) {
-      return Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     ReactDOM.createRoot(document.getElementById("root")).render(<VillaRevenueSplitApp />);

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arconic · Villa Revenue & Asset Split</title>
+  <title>Ar2conic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -214,12 +214,20 @@
       const monthsList = getMonthsInRange(2024, 4, currentYear, currentMonth); // С апреля 2024 года по текущий месяц
 
       // Данные затрат
-      const [expenses, setExpenses] = useState(monthsList.map(month => ({ month, amount: 0 })));
+      const [expenses, setExpenses] = useState(() => {
+        const storedExpenses = JSON.parse(localStorage.getItem('expenses')) || {};
+        const expensesArray = monthsList.map(month => ({ month, amount: storedExpenses[month] || 0 }));
+        return expensesArray;
+      });
 
       const updateExpense = (index, field, value) => {
         const newExpenses = [...expenses];
         newExpenses[index][field] = value;
         setExpenses(newExpenses);
+        localStorage.setItem('expenses', JSON.stringify(newExpenses.reduce((acc, expense) => {
+          acc[expense.month] = expense.amount;
+          return acc;
+        }, {})));
       };
 
       // Расчет доходности
@@ -360,13 +368,22 @@
                     onClick={() => {
                       const updatedExpenses = expenses.filter((_, i) => i !== index);
                       setExpenses(updatedExpenses);
+                      localStorage.setItem('expenses', JSON.stringify(updatedExpenses.reduce((acc, expense) => {
+                        acc[expense.month] = expense.amount;
+                        return acc;
+                      }, {})));
                     }}
                   >
                     Удалить
                   </button>
                 </div>
               ))}
-              <button className="btnSmall" onClick={() => setExpenses([...expenses, { month: monthsList[monthsList.length - 1], amount: 0 }])}>+ Добавить расходы</button>
+              <button className="btnSmall" onClick={() => {
+                const newMonth = monthsList[monthsList.length - 1];
+                setExpenses([...expenses, { month: newMonth, amount: 0 }]);
+              }}>
+                + Добавить расходы
+              </button>
             </div>
           </div>
 

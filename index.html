@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ar12conic · Villa Revenue & Asset Split</title>
+  <title>Arconic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -158,6 +158,19 @@
     .footer a:hover {
       text-decoration: underline;
     }
+
+    .datePicker {
+      display: flex;
+      gap: 8px;
+    }
+
+    .datePicker select {
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
   </style>
 </head>
 <body>
@@ -184,7 +197,40 @@
         { month: 'Апрель 2024', amount: 47185 },
         { month: 'Май 2024', amount: 9254 },
         { month: 'Июнь 2024', amount: 0 },
-        { month: 'Июль 2024', amount: 0 }
+        { month: 'Июль 2024', amount: 0 },
+        { month: 'Август 2024', amount: 0 },
+        { month: 'Сентябрь 2024', amount: 0 },
+        { month: 'Октябрь 2024', amount: 0 },
+        { month: 'Ноябрь 2024', amount: 0 },
+        { month: 'Декабрь 2024', amount: 0 },
+        { month: 'Январь 2025', amount: 0 },
+        { month: 'Февраль 2025', amount: 0 },
+        { month: 'Март 2025', amount: 0 },
+        { month: 'Апрель 2025', amount: 0 },
+        { month: 'Май 2025', amount: 0 },
+        { month: 'Июнь 2025', amount: 0 },
+        { month: 'Июль 2025', amount: 0 },
+        { month: 'Август 2025', amount: 0 },
+        { month: 'Сентябрь 2025', amount: 0 },
+        { month: 'Октябрь 2025', amount: 0 },
+        { month: 'Ноябрь 2025', amount: 0 },
+        { month: 'Декабрь 2025', amount: 0 },
+        { month: 'Январь 2026', amount: 0 },
+        { month: 'Февраль 2026', amount: 0 },
+        { month: 'Март 2026', amount: 0 },
+        { month: 'Апрель 2026', amount: 0 },
+        { month: 'Май 2026', amount: 0 },
+        { month: 'Июнь 2026', amount: 0 },
+        { month: 'Июль 2026', amount: 0 },
+        { month: 'Август 2026', amount: 0 },
+        { month: 'Сентябрь 2026', amount: 0 },
+        { month: 'Октябрь 2026', amount: 0 },
+        { month: 'Ноябрь 2026', amount: 0 },
+        { month: 'Декабрь 2026', amount: 0 },
+        { month: 'Январь 2027', amount: 0 },
+        { month: 'Февраль 2027', amount: 0 },
+        { month: 'Март 2027', amount: 0 },
+        { month: 'Апрель 2027', amount: 0 }
       ]);
 
       // Ползунки и базовая цена
@@ -237,6 +283,7 @@
                   onChange={(e) => setBasePrice(Number(e.target.value))} 
                   placeholder="Введите базовую цену"
                 />
+                <div className="subText">Это цена за 1 м² для расчета рыночной стоимости.</div>
               </div>
               <div>
                 <label>Целевая доходность (%)</label>
@@ -246,6 +293,7 @@
                   onChange={(e) => setGrowthRate(Number(e.target.value))} 
                   placeholder="Введите доходность"
                 />
+                <div className="subText">Целевая доходность в годовых процентах.</div>
               </div>
             </div>
           </div>
@@ -307,17 +355,17 @@
               <label>Ежемесячные затраты</label>
               {expenses.map((expense, index) => (
                 <div key={index}>
-                  <select 
-                    value={expense.month} 
-                    onChange={(e) => updateExpense(index, 'month', e.target.value)} 
-                    className="select"
-                  >
-                    <option value="Апрель 2024">Апрель 2024</option>
-                    <option value="Май 2024">Май 2024</option>
-                    <option value="Июнь 2024">Июнь 2024</option>
-                    <option value="Июль 2024">Июль 2024</option>
-                    <option value="Август 2024">Август 2024</option>
-                  </select>
+                  <div className="datePicker">
+                    <select 
+                      value={expense.month} 
+                      onChange={(e) => updateExpense(index, 'month', e.target.value)} 
+                      className="select"
+                    >
+                      {['Апрель 2024', 'Май 2024', 'Июнь 2024', 'Июль 2024', 'Август 2024', 'Сентябрь 2024', 'Октябрь 2024', 'Ноябрь 2024', 'Декабрь 2024', 'Январь 2025', 'Февраль 2025', 'Март 2025', 'Апрель 2025', 'Май 2025', 'Июнь 2025', 'Июль 2025', 'Август 2025', 'Сентябрь 2025', 'Октябрь 2025', 'Ноябрь 2025', 'Декабрь 2025', 'Январь 2026', 'Февраль 2026', 'Март 2026', 'Апрель 2026', 'Май 2026', 'Июнь 2026', 'Июль 2026', 'Август 2026', 'Сентябрь 2026', 'Октябрь 2026', 'Ноябрь 2026', 'Декабрь 2026', 'Январь 2027', 'Февраль 2027', 'Март 2027', 'Апрель 2027'].map((month, idx) => (
+                        <option key={idx} value={month}>{month}</option>
+                      ))}
+                    </select>
+                  </div>
                   <input 
                     type="number" 
                     value={expense.amount} 

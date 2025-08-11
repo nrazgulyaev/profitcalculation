@@ -3,39 +3,155 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>A2rconic · Villa Revenue & Asset Split</title>
+  <title>Arconic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    html, body, #root { height: 100%; margin: 0; font-family: 'Inter', system-ui, sans-serif; }
-    .container { padding: 20px; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
 
-    /* Основной стиль */
-    .container { padding: 16px; background: #f9fafb; min-height: 100vh; color: #111827; }
-    .input, .select, .btn { padding: 10px 14px; margin: 5px 0; border-radius: 8px; }
-    .input, .select { border: 1px solid #d1d5db; background: #fff; width: 100%; }
-    .btn { background: #4CAF50; color: white; border: none; cursor: pointer; }
-    .btn:hover { background: #45a049; }
-    .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
-    .table th { background-color: #f3f4f6; }
-    .table td { background-color: #fff; }
+    body {
+      background-color: #f3f4f6;
+      color: #333;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-    .toolbarItem { display: flex; flex-direction: column; width: 200px; }
-    .toolbarItem label { font-weight: bold; margin-bottom: 8px; }
-    .toolbarItemMuted { color: #6b7280; font-size: 12px; }
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      padding: 32px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
 
-    .header { background: #fff; padding: 16px 0; display: flex; justify-content: space-between; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
-    .logoText { font-weight: 800; font-size: 18px; color: #374151; }
-    .headerRight { display: flex; gap: 10px; align-items: center; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding: 0 16px;
+    }
 
-    .footer { text-align: center; font-size: 12px; color: #6b7280; margin-top: 32px; }
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+    }
 
-    .btnSmall { padding: 8px 10px; font-size: 12px; margin-top: 8px; }
-    .btnSmallDanger { padding: 8px 10px; font-size: 12px; margin-top: 8px; background-color: #ef4444; color: white; }
+    .header input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-left: 16px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .toolbarItem {
+      flex: 1;
+      min-width: 220px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toolbarItem label {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #444;
+    }
+
+    .input, .select {
+      padding: 10px 12px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-bottom: 16px;
+    }
+
+    .btn, .btnSmall {
+      padding: 10px 20px;
+      font-size: 14px;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #45a049;
+    }
+
+    .btnSmall {
+      padding: 8px 14px;
+      font-size: 12px;
+    }
+
+    .btnSmallDanger {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .btnSmallDanger:hover {
+      background-color: #dc2626;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 32px;
+    }
+
+    .table th, .table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .table th {
+      background-color: #fafafa;
+      font-weight: 500;
+    }
+
+    .table tr:hover {
+      background-color: #f1f5f9;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      margin-top: 32px;
+    }
+
+    .footer a {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -105,18 +221,16 @@
       return (
         <div className="container">
           <div className="header">
-            <div className="logoText">Arconic · Villa Revenue & Asset Split</div>
-            <div className="headerRight">
+            <h1>Arconic · Villa Revenue & Asset Split</h1>
+            <div>
               <input 
                 type="number" 
-                className="input" 
                 value={basePrice} 
                 onChange={(e) => setBasePrice(Number(e.target.value))} 
                 placeholder="Базовая цена за м²"
               />
               <input 
                 type="number" 
-                className="input" 
                 value={growthRate} 
                 onChange={(e) => setGrowthRate(Number(e.target.value))} 
                 placeholder="Целевая доходность (%)"
@@ -128,38 +242,35 @@
             <div className="toolbarItem">
               <label>Типы вилл</label>
               {types.map((type, index) => (
-                <div key={type.id} style={{ marginBottom: 8 }}>
+                <div key={type.id}>
                   <input 
-                    className="input"
                     type="text" 
                     value={type.name} 
                     onChange={(e) => {
                       const updatedTypes = [...types];
                       updatedTypes[index].name = e.target.value;
                       setTypes(updatedTypes);
-                    }}
+                    }} 
                     placeholder="Название виллы"
                   />
                   <input 
-                    className="input"
                     type="number" 
                     value={type.area} 
                     onChange={(e) => {
                       const updatedTypes = [...types];
                       updatedTypes[index].area = Number(e.target.value);
                       setTypes(updatedTypes);
-                    }}
+                    }} 
                     placeholder="Площадь"
                   />
                   <input 
-                    className="input"
                     type="number" 
                     value={type.count} 
                     onChange={(e) => {
                       const updatedTypes = [...types];
                       updatedTypes[index].count = Number(e.target.value);
                       setTypes(updatedTypes);
-                    }}
+                    }} 
                     placeholder="Количество"
                   />
                   <button 
@@ -173,19 +284,21 @@
                   </button>
                 </div>
               ))}
+              <button 
+                className="btnSmall" 
+                onClick={() => setTypes([...types, { id: types.length + 1, name: "", area: 100, count: 1 }])}
+              >
+                + Добавить тип виллы
+              </button>
             </div>
-            <button className="btnSmall" onClick={() => setTypes([...types, { id: types.length + 1, name: "", area: 100, count: 1 }])}>+ Добавить тип виллы</button>
-          </div>
-
-          <div className="toolbar">
             <div className="toolbarItem">
               <label>Ежемесячные затраты</label>
               {expenses.map((expense, index) => (
-                <div key={index} style={{ marginBottom: 8 }}>
+                <div key={index}>
                   <select 
+                    value={expense.month} 
+                    onChange={(e) => updateExpense(index, 'month', e.target.value)} 
                     className="select"
-                    value={expense.month}
-                    onChange={(e) => updateExpense(index, 'month', e.target.value)}
                   >
                     <option value="Апрель 2024">Апрель 2024</option>
                     <option value="Май 2024">Май 2024</option>
@@ -194,10 +307,10 @@
                     <option value="Август 2024">Август 2024</option>
                   </select>
                   <input 
-                    className="input"
                     type="number" 
                     value={expense.amount} 
                     onChange={(e) => updateExpense(index, 'amount', Number(e.target.value))}
+                    className="input"
                     placeholder="Сумма"
                   />
                   <button 
@@ -211,43 +324,42 @@
                   </button>
                 </div>
               ))}
+              <button className="btnSmall" onClick={() => setExpenses([...expenses, { month: "Август 2025", amount: 0 }])}>+ Добавить расходы</button>
             </div>
-            <button className="btnSmall" onClick={() => setExpenses([...expenses, { month: "Август 2025", amount: 0 }])}>+ Добавить расходы</button>
           </div>
 
-          <div className="table">
-            <h3>Результаты расчета</h3>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Месяц</th>
-                  <th>Затраты</th>
-                  <th>Доходность</th>
-                  <th>Накопленная доходность</th>
-                  <th>Наценка на 1 м²</th>
-                  <th>Рыночная цена</th>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Месяц</th>
+                <th>Затраты</th>
+                <th>Доходность</th>
+                <th>Накопленная доходность</th>
+                <th>Наценка на 1 м²</th>
+                <th>Рыночная цена</th>
+              </tr>
+            </thead>
+            <tbody>
+              {results.map((result, index) => (
+                <tr key={index}>
+                  <td>{result.month}</td>
+                  <td>{result.expenses.toLocaleString()}</td>
+                  <td>{result.growth.toLocaleString()}</td>
+                  <td>{result.cumulativeGrowth.toLocaleString()}</td>
+                  <td>{result.markupPerM2.toLocaleString()}</td>
+                  <td>{result.marketPrice.toLocaleString()}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {results.map((result, index) => (
-                  <tr key={index}>
-                    <td>{result.month}</td>
-                    <td>{result.expenses.toLocaleString()}</td>
-                    <td>{result.growth.toLocaleString()}</td>
-                    <td>{result.cumulativeGrowth.toLocaleString()}</td>
-                    <td>{result.markupPerM2.toLocaleString()}</td>
-                    <td>{result.marketPrice.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
 
+          <div className="footer">
+            <span>Проект Arconic © 2025</span>
+          </div>
         </div>
       );
     }
 
-    // Рендерим приложение
     ReactDOM.createRoot(document.getElementById("root")).render(<VillaRevenueSplitApp />);
   </script>
 </body>

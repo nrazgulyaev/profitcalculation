@@ -104,6 +104,23 @@
       border: 1px solid #ddd;
       border-radius: 8px;
     }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    table th, table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #00796b;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -204,8 +221,14 @@
       monthlyExpenses.forEach(expense => {
         expensesContainer.innerHTML += `
           <div class="villa-item">
-            <input type="month" value="${expense.month}" onchange="updateExpense(${expense.id}, 'month', this.value)">
-            <input type="number" value="${expense.year}" placeholder="Год" onchange="updateExpense(${expense.id}, 'year', this.value)">
+            <select onchange="updateExpense(${expense.id}, 'month', this.value)">
+              <option value="">Выберите месяц</option>
+              ${getMonthOptions().map(month => `<option value="${month.value}" ${expense.month === month.value ? 'selected' : ''}>${month.label}</option>`).join('')}
+            </select>
+            <select onchange="updateExpense(${expense.id}, 'year', this.value)">
+              <option value="">Выберите год</option>
+              ${getYearOptions().map(year => `<option value="${year}" ${expense.year === year ? 'selected' : ''}>${year}</option>`).join('')}
+            </select>
             <input type="number" value="${expense.amount}" placeholder="Затраты" onchange="updateExpense(${expense.id}, 'amount', this.value)">
             <button class="btn" onclick="removeExpense(${expense.id})">Удалить</button>
           </div>
@@ -223,7 +246,31 @@
       });
     }
 
-    // Функция для вычисления цены виллы и рыночной стоимости
+    // Функция для получения списка месяцев
+    function getMonthOptions() {
+      return [
+        { label: 'Январь', value: '01' },
+        { label: 'Февраль', value: '02' },
+        { label: 'Март', value: '03' },
+        { label: 'Апрель', value: '04' },
+        { label: 'Май', value: '05' },
+        { label: 'Июнь', value: '06' },
+        { label: 'Июль', value: '07' },
+        { label: 'Август', value: '08' },
+        { label: 'Сентябрь', value: '09' },
+        { label: 'Октябрь', value: '10' },
+        { label: 'Ноябрь', value: '11' },
+        { label: 'Декабрь', value: '12' },
+      ];
+    }
+
+    // Функция для получения списка лет
+    function getYearOptions() {
+      const currentYear = new Date().getFullYear();
+      return [currentYear, currentYear + 1, currentYear + 2];
+    }
+
+    // Функция для вычисления всех данных и вывода результатов
     function calculate() {
       const growthRate = parseFloat(document.getElementById('growth-rate').value);
       const costPerM2 = parseFloat(document.getElementById('cost-per-m2').value); // Себестоимость за м²
@@ -255,16 +302,49 @@
         <p><b>Общая себестоимость:</b> $${totalCost.toFixed(2)}</p>
         <p><b>Наценка на 1 м²:</b> $${markupPerM2.toFixed(2)}</p>
         <p><b>Предлагаемая рыночная стоимость м²:</b> $${marketPricePerM2.toFixed(2)}</p>
-        <div class="villa-list">
-          ${villaTypes.map(villa => `
-            <div class="villa-item">
-              <p><b>Тип виллы:</b> ${villa.name}</p>
-              <p><b>Цена виллы (${villa.area} м²):</b> $${(villa.area * marketPricePerM2).toFixed(2)}</p>
-            </div>
-          `).join('')}
-        </div>
+
+        <h3>Таблица доходности и затрат:</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Месяц</th>
+              <th>Затраты ($)</th>
+              <th>Доходность ($)</th>
+              <th>Стоимость м² ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${generateMonthlyTable()}
+          </tbody>
+        </table>
       `;
+
       document.getElementById('results').innerHTML = results;
+    }
+
+    // Функция для генерации строки таблицы с затратами и доходностью
+    function generateMonthlyTable() {
+      let tableRows = '';
+      let cumulativeGrowth = 0;
+
+      // Генерация данных по месяцам
+      getMonthOptions().forEach((month, index) => {
+        const monthExpenses = monthlyExpenses.find(exp => exp.month === month.value);
+        const expenseAmount = monthExpenses ? parseFloat(monthExpenses.amount) : 0;
+        cumulativeGrowth += expenseAmount * (parseFloat(document.getElementById('growth-rate').value) / 100);
+        const pricePerM2 = 1200 + cumulativeGrowth / totalArea;
+
+        tableRows += `
+          <tr>
+            <td>${month.label} ${new Date().getFullYear()}</td>
+            <td>$${expenseAmount.toFixed(2)}</td>
+            <td>$${cumulativeGrowth.toFixed(2)}</td>
+            <td>$${pricePerM2.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      return tableRows;
     }
   </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arconic · Villa Revenue & Asset Split</title>
+  <title>Ar12conic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -77,6 +77,12 @@
       font-weight: 500;
       margin-bottom: 8px;
       color: #444;
+    }
+
+    .toolbarItem .subText {
+      font-size: 12px;
+      color: #777;
+      margin-top: 4px;
     }
 
     .input, .select {
@@ -223,18 +229,24 @@
           <div className="header">
             <h1>Arconic · Villa Revenue & Asset Split</h1>
             <div>
-              <input 
-                type="number" 
-                value={basePrice} 
-                onChange={(e) => setBasePrice(Number(e.target.value))} 
-                placeholder="Базовая цена за м²"
-              />
-              <input 
-                type="number" 
-                value={growthRate} 
-                onChange={(e) => setGrowthRate(Number(e.target.value))} 
-                placeholder="Целевая доходность (%)"
-              />
+              <div>
+                <label>Базовая цена за м²</label>
+                <input 
+                  type="number" 
+                  value={basePrice} 
+                  onChange={(e) => setBasePrice(Number(e.target.value))} 
+                  placeholder="Введите базовую цену"
+                />
+              </div>
+              <div>
+                <label>Целевая доходность (%)</label>
+                <input 
+                  type="number" 
+                  value={growthRate} 
+                  onChange={(e) => setGrowthRate(Number(e.target.value))} 
+                  placeholder="Введите доходность"
+                />
+              </div>
             </div>
           </div>
 

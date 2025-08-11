@@ -107,9 +107,45 @@
               <td>{fmtMoney(expense.amount)}</td>
               <td>{fmtMoney(accumulatedProfit)}</td>
               <td>{fmtMoney(accumulatedMarkup)}</td>
+              <td>
+                <button className="btn" onClick={() => handleEditExpense(idx)}>Редактировать</button>
+                <button className="btn" onClick={() => handleDeleteExpense(idx)}>Удалить</button>
+              </td>
             </tr>
           );
         });
+      };
+
+      const handleEditExpense = (index) => {
+        const expense = monthlyExpenses[index];
+        const updatedMonth = prompt("Введите месяц (например, Июль 2025)", expense.month);
+        const updatedYear = prompt("Введите год", expense.year);
+        const updatedAmount = prompt("Введите сумму расходов", expense.amount);
+
+        const updatedExpenses = [...monthlyExpenses];
+        updatedExpenses[index] = {
+          ...expense,
+          month: updatedMonth,
+          year: parseInt(updatedYear, 10),
+          amount: parseFloat(updatedAmount)
+        };
+        setMonthlyExpenses(updatedExpenses);
+      };
+
+      const handleDeleteExpense = (index) => {
+        const updatedExpenses = monthlyExpenses.filter((_, i) => i !== index);
+        setMonthlyExpenses(updatedExpenses);
+      };
+
+      const handleAddExpense = () => {
+        const newMonth = prompt("Введите месяц (например, Июль 2025)");
+        const newYear = prompt("Введите год");
+        const newAmount = prompt("Введите сумму расходов");
+
+        setMonthlyExpenses([
+          ...monthlyExpenses,
+          { month: newMonth, year: parseInt(newYear, 10), amount: parseFloat(newAmount) }
+        ]);
       };
 
       return (
@@ -155,14 +191,20 @@
             </ul>
 
             <h2>Ежемесячные расходы</h2>
-            <button onClick={() => setMonthlyExpenses([...monthlyExpenses, { month: "Август 2025", year: 2025, amount: 43675 }])}>Добавить расходы Август 2025</button>
-            <ul>
-              {monthlyExpenses.map((expense, idx) => (
-                <li key={idx}>
-                  {expense.month} {expense.year} - {expense.amount} $
-                </li>
-              ))}
-            </ul>
+            <button onClick={handleAddExpense}>Добавить расходы</button>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Месяц</th>
+                  <th>Год</th>
+                  <th>Затраты</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {renderMonthlyData()}
+              </tbody>
+            </table>
 
             <h2>Параметры</h2>
             <label>

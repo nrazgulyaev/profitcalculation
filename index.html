@@ -9,17 +9,18 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
+    /* Общее оформление */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Roboto', sans-serif;
     }
 
     body {
       background-color: #f3f4f6;
       color: #333;
-      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      padding: 20px;
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -41,13 +42,11 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 32px;
-      padding: 0 16px;
     }
 
     .header h1 {
       font-size: 24px;
       font-weight: 600;
-      color: #333;
     }
 
     .header input {
@@ -76,7 +75,6 @@
       font-size: 14px;
       font-weight: 500;
       margin-bottom: 8px;
-      color: #444;
     }
 
     .toolbarItem .subText {
@@ -177,7 +175,7 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useMemo } = React;
+    const { useState, useMemo, useEffect } = React;
 
     function VillaRevenueSplitApp() {
       // -------- ИСХОДНЫЕ ДАННЫЕ --------
@@ -192,53 +190,37 @@
       const [investorInvestPct, setInvestorInvestPct] = useState(90);
       const [investorProfitPct, setInvestorProfitPct] = useState(45);
 
-      // Данные затрат
-      const [expenses, setExpenses] = useState([
-        { month: 'Апрель 2024', amount: 47185 },
-        { month: 'Май 2024', amount: 9254 },
-        { month: 'Июнь 2024', amount: 0 },
-        { month: 'Июль 2024', amount: 0 },
-        { month: 'Август 2024', amount: 0 },
-        { month: 'Сентябрь 2024', amount: 0 },
-        { month: 'Октябрь 2024', amount: 0 },
-        { month: 'Ноябрь 2024', amount: 0 },
-        { month: 'Декабрь 2024', amount: 0 },
-        { month: 'Январь 2025', amount: 0 },
-        { month: 'Февраль 2025', amount: 0 },
-        { month: 'Март 2025', amount: 0 },
-        { month: 'Апрель 2025', amount: 0 },
-        { month: 'Май 2025', amount: 0 },
-        { month: 'Июнь 2025', amount: 0 },
-        { month: 'Июль 2025', amount: 0 },
-        { month: 'Август 2025', amount: 0 },
-        { month: 'Сентябрь 2025', amount: 0 },
-        { month: 'Октябрь 2025', amount: 0 },
-        { month: 'Ноябрь 2025', amount: 0 },
-        { month: 'Декабрь 2025', amount: 0 },
-        { month: 'Январь 2026', amount: 0 },
-        { month: 'Февраль 2026', amount: 0 },
-        { month: 'Март 2026', amount: 0 },
-        { month: 'Апрель 2026', amount: 0 },
-        { month: 'Май 2026', amount: 0 },
-        { month: 'Июнь 2026', amount: 0 },
-        { month: 'Июль 2026', amount: 0 },
-        { month: 'Август 2026', amount: 0 },
-        { month: 'Сентябрь 2026', amount: 0 },
-        { month: 'Октябрь 2026', amount: 0 },
-        { month: 'Ноябрь 2026', amount: 0 },
-        { month: 'Декабрь 2026', amount: 0 },
-        { month: 'Январь 2027', amount: 0 },
-        { month: 'Февраль 2027', amount: 0 },
-        { month: 'Март 2027', amount: 0 },
-        { month: 'Апрель 2027', amount: 0 }
-      ]);
+      // Автоматическое заполнение месяцев
+      const getMonthsInRange = (startYear, startMonth, endYear, endMonth) => {
+        const months = [];
+        let currentYear = startYear;
+        let currentMonth = startMonth;
+        
+        while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
+          const monthName = `${currentMonth} ${currentYear}`;
+          months.push(monthName);
+          currentMonth += 1;
+          if (currentMonth > 12) {
+            currentMonth = 1;
+            currentYear += 1;
+          }
+        }
+        return months;
+      };
 
-      // Ползунки и базовая цена
+      const currentMonth = new Date().getMonth() + 1; // Текущий месяц
+      const currentYear = new Date().getFullYear(); // Текущий год
+
+      const monthsList = getMonthsInRange(2024, 4, currentYear, currentMonth); // С апреля 2024 года по текущий месяц
+
+      // Данные затрат
+      const [expenses, setExpenses] = useState(monthsList.map(month => ({ month, amount: 0 })));
+
       const updateExpense = (index, field, value) => {
         const newExpenses = [...expenses];
         newExpenses[index][field] = value;
         setExpenses(newExpenses);
-      }
+      };
 
       // Расчет доходности
       const calcGrowth = (amount) => (amount * (growthRate / 100));
@@ -361,7 +343,7 @@
                       onChange={(e) => updateExpense(index, 'month', e.target.value)} 
                       className="select"
                     >
-                      {['Апрель 2024', 'Май 2024', 'Июнь 2024', 'Июль 2024', 'Август 2024', 'Сентябрь 2024', 'Октябрь 2024', 'Ноябрь 2024', 'Декабрь 2024', 'Январь 2025', 'Февраль 2025', 'Март 2025', 'Апрель 2025', 'Май 2025', 'Июнь 2025', 'Июль 2025', 'Август 2025', 'Сентябрь 2025', 'Октябрь 2025', 'Ноябрь 2025', 'Декабрь 2025', 'Январь 2026', 'Февраль 2026', 'Март 2026', 'Апрель 2026', 'Май 2026', 'Июнь 2026', 'Июль 2026', 'Август 2026', 'Сентябрь 2026', 'Октябрь 2026', 'Ноябрь 2026', 'Декабрь 2026', 'Январь 2027', 'Февраль 2027', 'Март 2027', 'Апрель 2027'].map((month, idx) => (
+                      {monthsList.map((month, idx) => (
                         <option key={idx} value={month}>{month}</option>
                       ))}
                     </select>
@@ -384,7 +366,7 @@
                   </button>
                 </div>
               ))}
-              <button className="btnSmall" onClick={() => setExpenses([...expenses, { month: "Август 2025", amount: 0 }])}>+ Добавить расходы</button>
+              <button className="btnSmall" onClick={() => setExpenses([...expenses, { month: monthsList[monthsList.length - 1], amount: 0 }])}>+ Добавить расходы</button>
             </div>
           </div>
 

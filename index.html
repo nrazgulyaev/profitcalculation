@@ -3,21 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arc2onic · Villa Revenue & Asset Split</title>
+  <title>Arconic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    html, body, #root { height: 100%; margin: 0; }
+    html, body, #root { height: 100%; margin: 0; font-family: 'Inter', system-ui, sans-serif; }
     .container { padding: 20px; }
-    .input { padding: 10px; margin: 5px; border-radius: 5px; }
-    .btn { padding: 10px; margin: 5px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    .btn:hover { background-color: #45a049; }
+
+    /* Основной стиль */
+    .container { padding: 16px; background: #f9fafb; min-height: 100vh; color: #111827; }
+    .input, .select, .btn { padding: 10px 14px; margin: 5px 0; border-radius: 8px; }
+    .input, .select { border: 1px solid #d1d5db; background: #fff; width: 100%; }
+    .btn { background: #4CAF50; color: white; border: none; cursor: pointer; }
+    .btn:hover { background: #45a049; }
     .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    .table th, .table td { padding: 10px; text-align: center; border: 1px solid #ddd; }
-    .table th { background-color: #f2f2f2; }
-    .row { display: flex; gap: 20px; margin-bottom: 10px; }
+    .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    .table th { background-color: #f3f4f6; }
+    .table td { background-color: #fff; }
+
+    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .toolbarItem { display: flex; flex-direction: column; width: 200px; }
+    .toolbarItem label { font-weight: bold; margin-bottom: 8px; }
+    .toolbarItemMuted { color: #6b7280; font-size: 12px; }
+
+    .header { background: #fff; padding: 16px 0; display: flex; justify-content: space-between; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+    .logoText { font-weight: 800; font-size: 18px; color: #374151; }
+    .headerRight { display: flex; gap: 10px; align-items: center; }
+
+    .footer { text-align: center; font-size: 12px; color: #6b7280; margin-top: 32px; }
   </style>
 </head>
 <body>
@@ -27,233 +42,185 @@
     const { useState, useMemo } = React;
 
     function VillaRevenueSplitApp() {
-      // Инициализация данных
+      // -------- ИСХОДНЫЕ ДАННЫЕ --------
       const [types, setTypes] = useState([
         { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
         { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
-        { id: 3, name: "Вилла тип 3", area: 201, count: 1 },
+        { id: 3, name: "Вилла тип 3", area: 201, count: 1 }
+      ]);
+      const [basePrice, setBasePrice] = useState(2400);
+      const [growthRate, setGrowthRate] = useState(10); // 10% годовых
+      const [costPerM2, setCostPerM2] = useState(1200);
+      const [investorInvestPct, setInvestorInvestPct] = useState(90);
+      const [investorProfitPct, setInvestorProfitPct] = useState(45);
+
+      // Данные затрат
+      const [expenses, setExpenses] = useState([
+        { month: 'Апрель 2024', amount: 47185 },
+        { month: 'Май 2024', amount: 9254 },
+        { month: 'Июнь 2024', amount: 0 },
+        { month: 'Июль 2024', amount: 0 }
       ]);
 
-      const [basePrice, setBasePrice] = useState(2400); // Базовая цена за м²
-      const [growthRate, setGrowthRate] = useState(3);  // Рост цены 10%
-      const [costPerM2, setCostPerM2] = useState(1200); // Себестоимость за м²
-      const [annualProfitRate, setAnnualProfitRate] = useState(10); // Годовая доходность
+      // Расчет доходности
+      const calcGrowth = (amount) => (amount * (growthRate / 100));
 
-      // Ежемесячные расходы
-      const [monthlyExpenses, setMonthlyExpenses] = useState([
-        { month: "Апрель 2024", year: 2024, amount: 47185 },
-        { month: "Май 2024", year: 2024, amount: 9254 },
-        { month: "Июнь 2024", year: 2024, amount: 0 },
-        { month: "Июль 2024", year: 2024, amount: 0 },
-        { month: "Август 2024", year: 2024, amount: 0 },
-        { month: "Сентябрь 2024", year: 2024, amount: 307 },
-        { month: "Октябрь 2024", year: 2024, amount: 15405 },
-        { month: "Ноябрь 2024", year: 2024, amount: 707 },
-        { month: "Декабрь 2024", year: 2024, amount: 9263 },
-        { month: "Январь 2025", year: 2025, amount: 9100 },
-        { month: "Февраль 2025", year: 2025, amount: 22945 },
-        { month: "Март 2025", year: 2025, amount: 20468 },
-        { month: "Апрель 2025", year: 2025, amount: 75649 },
-        { month: "Май 2025", year: 2025, amount: 87493 },
-        { month: "Июнь 2025", year: 2025, amount: 57927 },
-        { month: "Июль 2025", year: 2025, amount: 97982 },
-        { month: "Август 2025", year: 2025, amount: 43675 }
-      ]);
-
-      const [currentMonth, setCurrentMonth] = useState("Август 2025");
-
-      // Вычисления
-      const totalArea = useMemo(() => types.reduce((s, t) => s + t.area * t.count, 0), [types]);
+      const totalArea = useMemo(() => types.reduce((sum, type) => sum + type.area * type.count, 0), [types]);
       const totalCost = useMemo(() => totalArea * costPerM2, [totalArea, costPerM2]);
 
-      const monthlyIncome = useMemo(() => {
-        let totalIncome = 0;
-        monthlyExpenses.forEach((expense) => {
-          totalIncome += expense.amount;
+      const calculateResults = () => {
+        let totalExpenses = 0;
+        let cumulativeGrowth = 0;
+        const results = expenses.map((expense, index) => {
+          totalExpenses += expense.amount;
+          const growth = calcGrowth(totalExpenses);
+          cumulativeGrowth += growth;
+          const markupPerM2 = cumulativeGrowth / totalArea;
+          const marketPrice = basePrice + markupPerM2;
+
+          return {
+            month: expense.month,
+            expenses: totalExpenses,
+            growth,
+            markupPerM2,
+            marketPrice
+          };
         });
-        return totalIncome;
-      }, [monthlyExpenses]);
-
-      const priceAtSale = useMemo(() => {
-        return basePrice * Math.pow(1 + growthRate / 100, 1); // Простой расчет стоимости с учетом роста
-      }, [basePrice, growthRate]);
-
-      const totalAmountSpent = useMemo(() => {
-        return monthlyExpenses.reduce((acc, exp) => acc + exp.amount, 0);
-      }, [monthlyExpenses]);
-
-      const totalWithMarkup = useMemo(() => {
-        return basePrice + (totalAmountSpent / totalArea);
-      }, [totalAmountSpent, basePrice, totalArea]);
-
-      // Функция для форматирования денег
-      const fmtMoney = (v) => {
-        return Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return results;
       };
 
-      // Функция для отображения ежемесячных данных
-      const renderMonthlyData = () => {
-        let accumulatedCost = 0;
-        let accumulatedProfit = 0;
-        let accumulatedMarkup = 0;
-
-        const monthlyRate = (Math.pow(1 + annualProfitRate / 100, 1 / 12) - 1); // Конвертация годовой доходности в месячную
-
-        return monthlyExpenses.map((expense, idx) => {
-          accumulatedCost += expense.amount;
-          accumulatedProfit = accumulatedCost * monthlyRate;
-          accumulatedMarkup = (accumulatedProfit + totalAmountSpent) / totalArea;
-
-          return (
-            <tr key={idx}>
-              <td>{expense.month} {expense.year}</td>
-              <td>{fmtMoney(expense.amount)}</td>
-              <td>{fmtMoney(accumulatedProfit)}</td>
-              <td>{fmtMoney(accumulatedMarkup)}</td>
-              <td>{fmtMoney(basePrice + accumulatedMarkup)}</td>
-            </tr>
-          );
-        });
-      };
-
-      // Функция для добавления нового расхода
-      const handleAddExpense = () => {
-        const newMonth = prompt("Введите месяц (например, Июль 2025)");
-        const newYear = prompt("Введите год");
-        const newAmount = prompt("Введите сумму расходов");
-
-        setMonthlyExpenses([
-          ...monthlyExpenses,
-          { month: newMonth, year: parseInt(newYear, 10), amount: parseFloat(newAmount) }
-        ]);
-      };
-
-      // Функция для удаления расхода
-      const handleDeleteExpense = (index) => {
-        const updatedExpenses = monthlyExpenses.filter((_, i) => i !== index);
-        setMonthlyExpenses(updatedExpenses);
-      };
+      const results = calculateResults();
 
       return (
         <div className="container">
-          <h1>Калькулятор распределения выручки и активов проекта вилл</h1>
+          <div className="header">
+            <div className="logoText">Arconic · Villa Revenue & Asset Split</div>
+            <div className="headerRight">
+              <input 
+                type="number" 
+                className="input" 
+                value={basePrice} 
+                onChange={(e) => setBasePrice(Number(e.target.value))} 
+                placeholder="Базовая цена за м²"
+              />
+              <input 
+                type="number" 
+                className="input" 
+                value={growthRate} 
+                onChange={(e) => setGrowthRate(Number(e.target.value))} 
+                placeholder="Целевая доходность (%)"
+              />
+            </div>
+          </div>
 
-          {/* Ввод данных */}
-          <div>
-            <h2>Типы вилл</h2>
-            <button onClick={() => setTypes([...types, { id: types.length + 1, name: `Вилла тип ${types.length + 1}`, area: 100, count: 1 }])}>Добавить тип виллы</button>
-            <ul>
-              {types.map(type => (
-                <li key={type.id}>
-                  {type.name} - Площадь: 
+          <div className="toolbar">
+            <div className="toolbarItem">
+              <label>Типы вилл</label>
+              {types.map((type, index) => (
+                <div key={type.id} style={{ marginBottom: 8 }}>
                   <input 
+                    className="input"
+                    type="text" 
+                    value={type.name} 
+                    onChange={(e) => {
+                      const updatedTypes = [...types];
+                      updatedTypes[index].name = e.target.value;
+                      setTypes(updatedTypes);
+                    }}
+                    placeholder="Название виллы"
+                  />
+                  <input 
+                    className="input"
                     type="number" 
                     value={type.area} 
                     onChange={(e) => {
-                      const newTypes = types.map(t => {
-                        if (t.id === type.id) {
-                          t.area = parseFloat(e.target.value);
-                        }
-                        return t;
-                      });
-                      setTypes(newTypes);
+                      const updatedTypes = [...types];
+                      updatedTypes[index].area = Number(e.target.value);
+                      setTypes(updatedTypes);
                     }}
-                  /> м², Количество: 
+                    placeholder="Площадь"
+                  />
                   <input 
+                    className="input"
                     type="number" 
                     value={type.count} 
                     onChange={(e) => {
-                      const newTypes = types.map(t => {
-                        if (t.id === type.id) {
-                          t.count = parseInt(e.target.value, 10);
-                        }
-                        return t;
-                      });
-                      setTypes(newTypes);
+                      const updatedTypes = [...types];
+                      updatedTypes[index].count = Number(e.target.value);
+                      setTypes(updatedTypes);
                     }}
+                    placeholder="Количество"
                   />
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
+            <button className="btn" onClick={() => setTypes([...types, { id: types.length + 1, name: "", area: 100, count: 1 }])}>+ Добавить тип виллы</button>
+          </div>
 
-            <h2>Ежемесячные расходы</h2>
-            <button onClick={handleAddExpense}>Добавить расходы</button>
+          <div className="toolbar">
+            <div className="toolbarItem">
+              <label>Ежемесячные затраты</label>
+              {expenses.map((expense, index) => (
+                <div key={index} style={{ marginBottom: 8 }}>
+                  <input 
+                    className="input"
+                    type="text" 
+                    value={expense.month} 
+                    onChange={(e) => {
+                      const updatedExpenses = [...expenses];
+                      updatedExpenses[index].month = e.target.value;
+                      setExpenses(updatedExpenses);
+                    }} 
+                    placeholder="Месяц и год"
+                  />
+                  <input 
+                    className="input"
+                    type="number" 
+                    value={expense.amount} 
+                    onChange={(e) => {
+                      const updatedExpenses = [...expenses];
+                      updatedExpenses[index].amount = Number(e.target.value);
+                      setExpenses(updatedExpenses);
+                    }} 
+                    placeholder="Сумма"
+                  />
+                </div>
+              ))}
+            </div>
+            <button className="btn" onClick={() => setExpenses([...expenses, { month: "", amount: 0 }])}>+ Добавить расходы</button>
+          </div>
+
+          <div className="table">
+            <h3>Результаты расчета</h3>
             <table className="table">
               <thead>
                 <tr>
                   <th>Месяц</th>
-                  <th>Год</th>
                   <th>Затраты</th>
-                  <th>Действия</th>
+                  <th>Доходность</th>
+                  <th>Наценка на 1 м²</th>
+                  <th>Рыночная цена</th>
                 </tr>
               </thead>
               <tbody>
-                {monthlyExpenses.map((expense, index) => (
+                {results.map((result, index) => (
                   <tr key={index}>
-                    <td>
-                      <select
-                        value={expense.month}
-                        onChange={(e) => {
-                          const updatedExpenses = [...monthlyExpenses];
-                          updatedExpenses[index].month = e.target.value;
-                          setMonthlyExpenses(updatedExpenses);
-                        }}
-                      >
-                        {["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"].map(month => (
-                          <option key={month} value={month}>{month}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        value={expense.year}
-                        onChange={(e) => {
-                          const updatedExpenses = [...monthlyExpenses];
-                          updatedExpenses[index].year = parseInt(e.target.value, 10);
-                          setMonthlyExpenses(updatedExpenses);
-                        }}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        value={expense.amount}
-                        onChange={(e) => {
-                          const updatedExpenses = [...monthlyExpenses];
-                          updatedExpenses[index].amount = parseFloat(e.target.value);
-                          setMonthlyExpenses(updatedExpenses);
-                        }}
-                      />
-                    </td>
-                    <td>
-                      <button className="btn" onClick={() => handleDeleteExpense(index)}>Удалить</button>
-                    </td>
+                    <td>{result.month}</td>
+                    <td>{result.expenses.toLocaleString()}</td>
+                    <td>{result.growth.toLocaleString()}</td>
+                    <td>{result.markupPerM2.toLocaleString()}</td>
+                    <td>{result.marketPrice.toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <h2>Результаты</h2>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Месяц</th>
-                <th>Затраты</th>
-                <th>Доходность</th>
-                <th>Наценка на м²</th>
-                <th>Рыночная цена</th>
-              </tr>
-            </thead>
-            <tbody>
-              {renderMonthlyData()}
-            </tbody>
-          </table>
         </div>
       );
     }
 
+    // Рендерим приложение
     ReactDOM.createRoot(document.getElementById("root")).render(<VillaRevenueSplitApp />);
   </script>
 </body>

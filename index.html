@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arconic2 · Villa Revenue & Asset Split</title>
+  <title>Arconi2c · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    html,body,#root { height: 100%; margin: 0; }
+    html, body, #root { height: 100%; margin: 0; }
     .container { padding: 20px; }
     .input { padding: 10px; margin: 5px; border-radius: 5px; }
     .btn { padding: 10px; margin: 5px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
@@ -107,36 +107,12 @@
               <td>{fmtMoney(expense.amount)}</td>
               <td>{fmtMoney(accumulatedProfit)}</td>
               <td>{fmtMoney(accumulatedMarkup)}</td>
-              <td>
-                <button className="btn" onClick={() => handleEditExpense(idx)}>Редактировать</button>
-                <button className="btn" onClick={() => handleDeleteExpense(idx)}>Удалить</button>
-              </td>
             </tr>
           );
         });
       };
 
-      const handleEditExpense = (index) => {
-        const expense = monthlyExpenses[index];
-        const updatedMonth = prompt("Введите месяц (например, Июль 2025)", expense.month);
-        const updatedYear = prompt("Введите год", expense.year);
-        const updatedAmount = prompt("Введите сумму расходов", expense.amount);
-
-        const updatedExpenses = [...monthlyExpenses];
-        updatedExpenses[index] = {
-          ...expense,
-          month: updatedMonth,
-          year: parseInt(updatedYear, 10),
-          amount: parseFloat(updatedAmount)
-        };
-        setMonthlyExpenses(updatedExpenses);
-      };
-
-      const handleDeleteExpense = (index) => {
-        const updatedExpenses = monthlyExpenses.filter((_, i) => i !== index);
-        setMonthlyExpenses(updatedExpenses);
-      };
-
+      // Функция для добавления нового расхода
       const handleAddExpense = () => {
         const newMonth = prompt("Введите месяц (например, Июль 2025)");
         const newYear = prompt("Введите год");
@@ -146,6 +122,12 @@
           ...monthlyExpenses,
           { month: newMonth, year: parseInt(newYear, 10), amount: parseFloat(newAmount) }
         ]);
+      };
+
+      // Функция для удаления расхода
+      const handleDeleteExpense = (index) => {
+        const updatedExpenses = monthlyExpenses.filter((_, i) => i !== index);
+        setMonthlyExpenses(updatedExpenses);
       };
 
       return (
@@ -202,30 +184,51 @@
                 </tr>
               </thead>
               <tbody>
-                {renderMonthlyData()}
+                {monthlyExpenses.map((expense, index) => (
+                  <tr key={index}>
+                    <td>
+                      <select
+                        value={expense.month}
+                        onChange={(e) => {
+                          const updatedExpenses = [...monthlyExpenses];
+                          updatedExpenses[index].month = e.target.value;
+                          setMonthlyExpenses(updatedExpenses);
+                        }}
+                      >
+                        {["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"].map(month => (
+                          <option key={month} value={month}>{month}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={expense.year}
+                        onChange={(e) => {
+                          const updatedExpenses = [...monthlyExpenses];
+                          updatedExpenses[index].year = parseInt(e.target.value, 10);
+                          setMonthlyExpenses(updatedExpenses);
+                        }}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={expense.amount}
+                        onChange={(e) => {
+                          const updatedExpenses = [...monthlyExpenses];
+                          updatedExpenses[index].amount = parseFloat(e.target.value);
+                          setMonthlyExpenses(updatedExpenses);
+                        }}
+                      />
+                    </td>
+                    <td>
+                      <button className="btn" onClick={() => handleDeleteExpense(index)}>Удалить</button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
-
-            <h2>Параметры</h2>
-            <label>
-              Базовая цена м²: 
-              <input 
-                type="number" 
-                value={basePrice} 
-                onChange={(e) => setBasePrice(e.target.value)} 
-                className="input"
-              />
-            </label>
-            <br />
-            <label>
-              Целевая доходность: 
-              <input 
-                type="number" 
-                value={growthRate} 
-                onChange={(e) => setGrowthRate(e.target.value)} 
-                className="input"
-              />
-            </label>
           </div>
 
           <h2>Результаты</h2>

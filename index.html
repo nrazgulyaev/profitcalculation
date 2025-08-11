@@ -3,172 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ar2conic · Villa Revenue & Asset Split</title>
+  <title>Arconic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
+  <!-- React 18 + Babel (для JSX без сборщика) -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    /* Общее оформление */
-    * {
+    /* Основные стили */
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f7fb;
       margin: 0;
       padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    #root {
+      width: 80%;
+      max-width: 1200px;
+      padding: 20px;
       box-sizing: border-box;
     }
 
-    body {
-      background-color: #f3f4f6;
-      color: #333;
-      font-family: 'Roboto', sans-serif;
-      padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1200px;
-      padding: 32px;
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-    }
-
-    .header h1 {
-      font-size: 24px;
-      font-weight: 600;
-    }
-
-    .header input {
-      padding: 8px 12px;
-      border: 1px solid #ddd;
+    .card {
+      background-color: #ffffff;
       border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .label {
       font-size: 14px;
-      margin-left: 16px;
-    }
-
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .toolbarItem {
-      flex: 1;
-      min-width: 220px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .toolbarItem label {
-      font-size: 14px;
+      color: #555;
+      margin-bottom: 5px;
       font-weight: 500;
-      margin-bottom: 8px;
-    }
-
-    .toolbarItem .subText {
-      font-size: 12px;
-      color: #777;
-      margin-top: 4px;
     }
 
     .input, .select {
-      padding: 10px 12px;
+      width: 100%;
+      padding: 10px;
       font-size: 14px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
     }
 
-    .btn, .btnSmall {
+    .btn {
       padding: 10px 20px;
       font-size: 14px;
-      border-radius: 8px;
       background-color: #4CAF50;
       color: white;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s;
     }
 
     .btn:hover {
       background-color: #45a049;
     }
 
-    .btnSmall {
-      padding: 8px 14px;
-      font-size: 12px;
+    .btn-danger {
+      background-color: #f44336;
     }
 
-    .btnSmallDanger {
-      background-color: #ef4444;
-      color: white;
+    .btn-danger:hover {
+      background-color: #e53935;
     }
 
-    .btnSmallDanger:hover {
-      background-color: #dc2626;
+    .spacer {
+      margin-bottom: 20px;
     }
 
-    .table {
+    /* Таблицы */
+    table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 32px;
+      margin-bottom: 20px;
     }
 
-    .table th, .table td {
+    table th, table td {
       padding: 12px;
       text-align: left;
       border-bottom: 1px solid #ddd;
     }
 
-    .table th {
-      background-color: #fafafa;
-      font-weight: 500;
+    table th {
+      background-color: #f2f2f2;
+      font-weight: bold;
     }
 
-    .table tr:hover {
-      background-color: #f1f5f9;
-    }
-
-    .footer {
+    .text-center {
       text-align: center;
-      font-size: 14px;
-      color: #888;
-      margin-top: 32px;
     }
 
-    .footer a {
-      color: #4CAF50;
-      text-decoration: none;
-    }
-
-    .footer a:hover {
-      text-decoration: underline;
-    }
-
-    .datePicker {
+    /* Стили для кнопок */
+    .toolbar-item {
       display: flex;
-      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .datePicker select {
-      padding: 8px 12px;
-      font-size: 14px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
+    .toolbar-item input {
+      width: 60%;
     }
 
+    .toolbar-item button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .toolbar-item button:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
@@ -178,248 +141,161 @@
     const { useState, useMemo, useEffect } = React;
 
     function VillaRevenueSplitApp() {
-      // -------- ИСХОДНЫЕ ДАННЫЕ --------
+      // -------- Исходные данные / STATE --------
       const [types, setTypes] = useState([
         { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
-        { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
-        { id: 3, name: "Вилла тип 3", area: 201, count: 1 }
+        { id: 2, name: "Вилла тип 2", area: 192,   count: 2 },
+        { id: 3, name: "Вилла тип 3", area: 201,   count: 1 },
       ]);
+      
       const [basePrice, setBasePrice] = useState(2400);
-      const [growthRate, setGrowthRate] = useState(10); // 10% годовых
+      const [growthRate, setGrowthRate] = useState(3);
+      const [targetProfit, setTargetProfit] = useState(100);  // Целевая доходность в процентах
       const [costPerM2, setCostPerM2] = useState(1200);
-      const [investorInvestPct, setInvestorInvestPct] = useState(90);
-      const [investorProfitPct, setInvestorProfitPct] = useState(45);
+      
+      const [expenses, setExpenses] = useState([
+        { month: 'Апрель 2024', amount: 47185 },
+        { month: 'Май 2024', amount: 9254 },
+        { month: 'Июнь 2024', amount: 0 },
+        { month: 'Июль 2024', amount: 0 },
+        { month: 'Август 2024', amount: 307 },
+        // Добавьте больше данных по необходимости
+      ]);
 
-      // Автоматическое заполнение месяцев
-      const getMonthsInRange = (startYear, startMonth, endYear, endMonth) => {
-        const months = [];
-        let currentYear = startYear;
-        let currentMonth = startMonth;
-        
-        while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
-          const monthName = `${currentMonth} ${currentYear}`;
-          months.push(monthName);
-          currentMonth += 1;
-          if (currentMonth > 12) {
-            currentMonth = 1;
-            currentYear += 1;
-          }
-        }
-        return months;
-      };
-
-      const currentMonth = new Date().getMonth() + 1; // Текущий месяц
-      const currentYear = new Date().getFullYear(); // Текущий год
-
-      const monthsList = getMonthsInRange(2024, 4, currentYear, currentMonth); // С апреля 2024 года по текущий месяц
-
-      // Данные затрат
-      const [expenses, setExpenses] = useState(() => {
-        const storedExpenses = JSON.parse(localStorage.getItem('expenses')) || {};
-        const expensesArray = monthsList.map(month => ({ month, amount: storedExpenses[month] || 0 }));
-        return expensesArray;
-      });
-
-      const updateExpense = (index, field, value) => {
-        const newExpenses = [...expenses];
-        newExpenses[index][field] = value;
-        setExpenses(newExpenses);
-        localStorage.setItem('expenses', JSON.stringify(newExpenses.reduce((acc, expense) => {
-          acc[expense.month] = expense.amount;
-          return acc;
-        }, {})));
-      };
-
-      // Расчет доходности
-      const calcGrowth = (amount) => (amount * (growthRate / 100));
-
-      const totalArea = useMemo(() => types.reduce((sum, type) => sum + type.area * type.count, 0), [types]);
+      const totalArea = useMemo(() => types.reduce((sum, villa) => sum + villa.area * villa.count, 0), [types]);
       const totalCost = useMemo(() => totalArea * costPerM2, [totalArea, costPerM2]);
 
-      const calculateResults = () => {
-        let totalExpenses = 0;
-        let cumulativeGrowth = 0;
-        const results = expenses.map((expense, index) => {
-          totalExpenses += expense.amount;
-          const growth = calcGrowth(totalExpenses);
-          cumulativeGrowth += growth;
-          const markupPerM2 = cumulativeGrowth / totalArea;
-          const marketPrice = basePrice + markupPerM2;
-
-          return {
-            month: expense.month,
-            expenses: totalExpenses,
-            growth,
-            cumulativeGrowth,
-            markupPerM2,
-            marketPrice
-          };
-        });
-        return results;
+      // --------------- Расчётная логика ---------------
+      const calculateProfit = (basePrice, growthRate, targetProfit, totalCost) => {
+        const profit = totalCost * (targetProfit / 100);
+        const priceWithProfit = basePrice + profit;
+        return priceWithProfit;
       };
 
-      const results = calculateResults();
+      const priceWithProfit = calculateProfit(basePrice, growthRate, targetProfit, totalCost);
 
+      // -------- Сохранение данных в LocalStorage --------
+      useEffect(() => {
+        localStorage.setItem('types', JSON.stringify(types));
+        localStorage.setItem('basePrice', basePrice);
+        localStorage.setItem('targetProfit', targetProfit);
+        localStorage.setItem('expenses', JSON.stringify(expenses));
+      }, [types, basePrice, targetProfit, expenses]);
+
+      // -------- Рендер --------
       return (
-        <div className="container">
-          <div className="header">
-            <h1>Arconic · Villa Revenue & Asset Split</h1>
-            <div>
-              <div>
-                <label>Базовая цена за м²</label>
-                <input 
-                  type="number" 
-                  value={basePrice} 
-                  onChange={(e) => setBasePrice(Number(e.target.value))} 
-                  placeholder="Введите базовую цену"
-                />
-                <div className="subText">Это цена за 1 м² для расчета рыночной стоимости.</div>
-              </div>
-              <div>
-                <label>Целевая доходность (%)</label>
-                <input 
-                  type="number" 
-                  value={growthRate} 
-                  onChange={(e) => setGrowthRate(Number(e.target.value))} 
-                  placeholder="Введите доходность"
-                />
-                <div className="subText">Целевая доходность в годовых процентах.</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="toolbar">
-            <div className="toolbarItem">
-              <label>Типы вилл</label>
-              {types.map((type, index) => (
-                <div key={type.id}>
-                  <input 
-                    type="text" 
-                    value={type.name} 
-                    onChange={(e) => {
-                      const updatedTypes = [...types];
-                      updatedTypes[index].name = e.target.value;
-                      setTypes(updatedTypes);
-                    }} 
-                    placeholder="Название виллы"
-                  />
-                  <input 
-                    type="number" 
-                    value={type.area} 
-                    onChange={(e) => {
-                      const updatedTypes = [...types];
-                      updatedTypes[index].area = Number(e.target.value);
-                      setTypes(updatedTypes);
-                    }} 
-                    placeholder="Площадь"
-                  />
-                  <input 
-                    type="number" 
-                    value={type.count} 
-                    onChange={(e) => {
-                      const updatedTypes = [...types];
-                      updatedTypes[index].count = Number(e.target.value);
-                      setTypes(updatedTypes);
-                    }} 
-                    placeholder="Количество"
-                  />
-                  <button 
-                    className="btnSmallDanger" 
-                    onClick={() => {
-                      const updatedTypes = types.filter((_, i) => i !== index);
-                      setTypes(updatedTypes);
-                    }}
-                  >
-                    Удалить
-                  </button>
-                </div>
-              ))}
-              <button 
-                className="btnSmall" 
-                onClick={() => setTypes([...types, { id: types.length + 1, name: "", area: 100, count: 1 }])}
-              >
-                + Добавить тип виллы
-              </button>
-            </div>
-            <div className="toolbarItem">
-              <label>Ежемесячные затраты</label>
-              {expenses.map((expense, index) => (
-                <div key={index}>
-                  <div className="datePicker">
-                    <select 
-                      value={expense.month} 
-                      onChange={(e) => updateExpense(index, 'month', e.target.value)} 
-                      className="select"
-                    >
-                      {monthsList.map((month, idx) => (
-                        <option key={idx} value={month}>{month}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <input 
-                    type="number" 
-                    value={expense.amount} 
-                    onChange={(e) => updateExpense(index, 'amount', Number(e.target.value))}
-                    className="input"
-                    placeholder="Сумма"
-                  />
-                  <button 
-                    className="btnSmallDanger" 
-                    onClick={() => {
-                      const updatedExpenses = expenses.filter((_, i) => i !== index);
-                      setExpenses(updatedExpenses);
-                      localStorage.setItem('expenses', JSON.stringify(updatedExpenses.reduce((acc, expense) => {
-                        acc[expense.month] = expense.amount;
-                        return acc;
-                      }, {})));
-                    }}
-                  >
-                    Удалить
-                  </button>
-                </div>
-              ))}
-              <button className="btnSmall" onClick={() => {
-                const newMonth = monthsList[monthsList.length - 1];
-                setExpenses([...expenses, { month: newMonth, amount: 0 }]);
-              }}>
-                + Добавить расходы
-              </button>
-            </div>
-          </div>
-
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Месяц</th>
-                <th>Затраты</th>
-                <th>Доходность</th>
-                <th>Накопленная доходность</th>
-                <th>Наценка на 1 м²</th>
-                <th>Рыночная цена</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((result, index) => (
-                <tr key={index}>
-                  <td>{result.month}</td>
-                  <td>{result.expenses.toLocaleString()}</td>
-                  <td>{result.growth.toLocaleString()}</td>
-                  <td>{result.cumulativeGrowth.toLocaleString()}</td>
-                  <td>{result.markupPerM2.toLocaleString()}</td>
-                  <td>{result.marketPrice.toLocaleString()}</td>
+        <div>
+          <div className="card">
+            <h2 className="card-title">Типы вилл</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Название</th>
+                  <th>Площадь, м²</th>
+                  <th>Количество</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {types.map((villa, idx) => (
+                  <tr key={villa.id}>
+                    <td>
+                      <input 
+                        value={villa.name} 
+                        onChange={(e) => setTypes(prev => prev.map((v, i) => i === idx ? { ...v, name: e.target.value } : v))} 
+                      />
+                    </td>
+                    <td>
+                      <input 
+                        type="number" 
+                        value={villa.area} 
+                        onChange={(e) => setTypes(prev => prev.map((v, i) => i === idx ? { ...v, area: parseFloat(e.target.value) } : v))} 
+                      />
+                    </td>
+                    <td>
+                      <input 
+                        type="number" 
+                        value={villa.count} 
+                        onChange={(e) => setTypes(prev => prev.map((v, i) => i === idx ? { ...v, count: parseInt(e.target.value, 10) } : v))} 
+                      />
+                    </td>
+                    <td>
+                      <button onClick={() => setTypes(prev => prev.filter((_, i) => i !== idx))}>Удалить</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button onClick={() => setTypes(prev => [...prev, { id: types.length + 1, name: 'Новый тип', area: 100, count: 1 }])}>
+              Добавить тип виллы
+            </button>
+          </div>
 
-          <div className="footer">
-            <span>Проект Arconic © 2025</span>
+          <div className="card">
+            <h2 className="card-title">Целевая доходность и базовая цена</h2>
+            <div className="toolbar-item">
+              <label>Базовая цена ($/м²)</label>
+              <input 
+                type="number" 
+                value={basePrice} 
+                onChange={(e) => setBasePrice(Number(e.target.value))} 
+              />
+            </div>
+            <div className="toolbar-item">
+              <label>Целевая доходность (%)</label>
+              <input 
+                type="number" 
+                value={targetProfit} 
+                onChange={(e) => setTargetProfit(Number(e.target.value))} 
+              />
+            </div>
+            <div className="toolbar-item">
+              <label>Рекомендуемая цена ($/м²)</label>
+              <input 
+                type="text" 
+                value={priceWithProfit} 
+                disabled 
+              />
+            </div>
+          </div>
+
+          <div className="card">
+            <h2 className="card-title">Ежемесячные затраты</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Месяц</th>
+                  <th>Сумма</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {expenses.map((exp, idx) => (
+                  <tr key={idx}>
+                    <td>{exp.month}</td>
+                    <td>
+                      <input 
+                        type="number" 
+                        value={exp.amount} 
+                        onChange={(e) => setExpenses(prev => prev.map((v, i) => i === idx ? { ...v, amount: parseFloat(e.target.value) } : v))} 
+                      />
+                    </td>
+                    <td>
+                      <button onClick={() => setExpenses(prev => prev.filter((_, i) => i !== idx))}>Удалить</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button onClick={() => setExpenses(prev => [...prev, { month: 'Сентябрь 2024', amount: 0 }])}>
+              Добавить расходы
+            </button>
           </div>
         </div>
       );
     }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<VillaRevenueSplitApp />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<VillaRevenueSplitApp />);
   </script>
 </body>
 </html>

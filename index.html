@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arconi2c · Villa Revenue & Asset Split</title>
+  <title>Arc2onic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -37,6 +37,7 @@
       const [basePrice, setBasePrice] = useState(2400); // Базовая цена за м²
       const [growthRate, setGrowthRate] = useState(3);  // Рост цены 10%
       const [costPerM2, setCostPerM2] = useState(1200); // Себестоимость за м²
+      const [annualProfitRate, setAnnualProfitRate] = useState(10); // Годовая доходность
 
       // Ежемесячные расходы
       const [monthlyExpenses, setMonthlyExpenses] = useState([
@@ -95,10 +96,12 @@
         let accumulatedCost = 0;
         let accumulatedProfit = 0;
         let accumulatedMarkup = 0;
-        
+
+        const monthlyRate = (Math.pow(1 + annualProfitRate / 100, 1 / 12) - 1); // Конвертация годовой доходности в месячную
+
         return monthlyExpenses.map((expense, idx) => {
           accumulatedCost += expense.amount;
-          accumulatedProfit = accumulatedCost * growthRate / 100;
+          accumulatedProfit = accumulatedCost * monthlyRate;
           accumulatedMarkup = (accumulatedProfit + totalAmountSpent) / totalArea;
 
           return (
@@ -107,6 +110,7 @@
               <td>{fmtMoney(expense.amount)}</td>
               <td>{fmtMoney(accumulatedProfit)}</td>
               <td>{fmtMoney(accumulatedMarkup)}</td>
+              <td>{fmtMoney(basePrice + accumulatedMarkup)}</td>
             </tr>
           );
         });
@@ -238,7 +242,8 @@
                 <th>Месяц</th>
                 <th>Затраты</th>
                 <th>Доходность</th>
-                <th>Цена м²</th>
+                <th>Наценка на м²</th>
+                <th>Рыночная цена</th>
               </tr>
             </thead>
             <tbody>

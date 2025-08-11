@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arconic · Villa Revenue & Asset Split</title>
+  <title>A2rconic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -33,6 +33,9 @@
     .headerRight { display: flex; gap: 10px; align-items: center; }
 
     .footer { text-align: center; font-size: 12px; color: #6b7280; margin-top: 32px; }
+
+    .btnSmall { padding: 8px 10px; font-size: 12px; margin-top: 8px; }
+    .btnSmallDanger { padding: 8px 10px; font-size: 12px; margin-top: 8px; background-color: #ef4444; color: white; }
   </style>
 </head>
 <body>
@@ -62,6 +65,13 @@
         { month: 'Июль 2024', amount: 0 }
       ]);
 
+      // Ползунки и базовая цена
+      const updateExpense = (index, field, value) => {
+        const newExpenses = [...expenses];
+        newExpenses[index][field] = value;
+        setExpenses(newExpenses);
+      }
+
       // Расчет доходности
       const calcGrowth = (amount) => (amount * (growthRate / 100));
 
@@ -82,6 +92,7 @@
             month: expense.month,
             expenses: totalExpenses,
             growth,
+            cumulativeGrowth,
             markupPerM2,
             marketPrice
           };
@@ -151,10 +162,19 @@
                     }}
                     placeholder="Количество"
                   />
+                  <button 
+                    className="btnSmallDanger" 
+                    onClick={() => {
+                      const updatedTypes = types.filter((_, i) => i !== index);
+                      setTypes(updatedTypes);
+                    }}
+                  >
+                    Удалить
+                  </button>
                 </div>
               ))}
             </div>
-            <button className="btn" onClick={() => setTypes([...types, { id: types.length + 1, name: "", area: 100, count: 1 }])}>+ Добавить тип виллы</button>
+            <button className="btnSmall" onClick={() => setTypes([...types, { id: types.length + 1, name: "", area: 100, count: 1 }])}>+ Добавить тип виллы</button>
           </div>
 
           <div className="toolbar">
@@ -162,32 +182,37 @@
               <label>Ежемесячные затраты</label>
               {expenses.map((expense, index) => (
                 <div key={index} style={{ marginBottom: 8 }}>
-                  <input 
-                    className="input"
-                    type="text" 
-                    value={expense.month} 
-                    onChange={(e) => {
-                      const updatedExpenses = [...expenses];
-                      updatedExpenses[index].month = e.target.value;
-                      setExpenses(updatedExpenses);
-                    }} 
-                    placeholder="Месяц и год"
-                  />
+                  <select 
+                    className="select"
+                    value={expense.month}
+                    onChange={(e) => updateExpense(index, 'month', e.target.value)}
+                  >
+                    <option value="Апрель 2024">Апрель 2024</option>
+                    <option value="Май 2024">Май 2024</option>
+                    <option value="Июнь 2024">Июнь 2024</option>
+                    <option value="Июль 2024">Июль 2024</option>
+                    <option value="Август 2024">Август 2024</option>
+                  </select>
                   <input 
                     className="input"
                     type="number" 
                     value={expense.amount} 
-                    onChange={(e) => {
-                      const updatedExpenses = [...expenses];
-                      updatedExpenses[index].amount = Number(e.target.value);
-                      setExpenses(updatedExpenses);
-                    }} 
+                    onChange={(e) => updateExpense(index, 'amount', Number(e.target.value))}
                     placeholder="Сумма"
                   />
+                  <button 
+                    className="btnSmallDanger" 
+                    onClick={() => {
+                      const updatedExpenses = expenses.filter((_, i) => i !== index);
+                      setExpenses(updatedExpenses);
+                    }}
+                  >
+                    Удалить
+                  </button>
                 </div>
               ))}
             </div>
-            <button className="btn" onClick={() => setExpenses([...expenses, { month: "", amount: 0 }])}>+ Добавить расходы</button>
+            <button className="btnSmall" onClick={() => setExpenses([...expenses, { month: "Август 2025", amount: 0 }])}>+ Добавить расходы</button>
           </div>
 
           <div className="table">
@@ -198,6 +223,7 @@
                   <th>Месяц</th>
                   <th>Затраты</th>
                   <th>Доходность</th>
+                  <th>Накопленная доходность</th>
                   <th>Наценка на 1 м²</th>
                   <th>Рыночная цена</th>
                 </tr>
@@ -208,6 +234,7 @@
                     <td>{result.month}</td>
                     <td>{result.expenses.toLocaleString()}</td>
                     <td>{result.growth.toLocaleString()}</td>
+                    <td>{result.cumulativeGrowth.toLocaleString()}</td>
                     <td>{result.markupPerM2.toLocaleString()}</td>
                     <td>{result.marketPrice.toLocaleString()}</td>
                   </tr>

@@ -88,11 +88,6 @@
       color: #00796b;
     }
 
-    .error {
-      color: red;
-      font-size: 14px;
-    }
-
     .villa-list {
       margin-top: 20px;
     }
@@ -150,7 +145,7 @@
 
     <h2>Текущий месяц</h2>
     <div>
-      <p>Текущий месяц: <b id="currentMonth">Август 2025</b></p>
+      <p>Текущий месяц: <b id="currentMonth"></b></p>
     </div>
 
     <div class="button-group">
@@ -351,6 +346,9 @@
 
       return tableRows;
     }
+
+    // Обновляем текущий месяц
+    document.getElementById('currentMonth').innerText = `Август 2025`;
   </script>
 </body>
 </html>

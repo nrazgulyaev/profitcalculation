@@ -9,6 +9,7 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
+    /* Оформление */
     * {
       margin: 0;
       padding: 0;
@@ -190,25 +191,20 @@
         { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
         { id: 3, name: "Вилла тип 3", area: 201, count: 1 }
       ]);
-      const [basePrice, setBasePrice] = useState(localStorage.getItem('basePrice') || 2400);
-      const [growthRate, setGrowthRate] = useState(localStorage.getItem('growthRate') || 10); // 10% годовых
+      const [basePrice, setBasePrice] = useState(2400);
+      const [growthRate, setGrowthRate] = useState(10); // 10% годовых
       const [costPerM2, setCostPerM2] = useState(1200);
       const [investorInvestPct, setInvestorInvestPct] = useState(90);
       const [investorProfitPct, setInvestorProfitPct] = useState(45);
-
-      // Сохранение значений в LocalStorage
-      const saveToLocalStorage = (key, value) => {
-        localStorage.setItem(key, value);
-      };
 
       // Автоматическое заполнение месяцев
       const getMonthsInRange = (startYear, startMonth, endYear, endMonth) => {
         const months = [];
         let currentYear = startYear;
         let currentMonth = startMonth;
-
+        
         while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
-          const monthName = `${currentMonth < 10 ? '0' : ''}${currentMonth} ${currentYear}`;
+          const monthName = `${currentMonth} ${currentYear}`;
           months.push(monthName);
           currentMonth += 1;
           if (currentMonth > 12) {
@@ -271,6 +267,18 @@
 
       const results = calculateResults();
 
+      // Стоимость вилл на текущую дату
+      const calculateVillaCosts = () => {
+        const marketPrice = calculateResults().find(result => result.month === `${currentMonth} ${currentYear}`).marketPrice;
+
+        return types.map(type => {
+          const villaCost = marketPrice * type.area;
+          return { typeName: type.name, villaCost };
+        });
+      };
+
+      const villaCosts = calculateVillaCosts();
+
       return (
         <div className="container">
           <div className="header">
@@ -281,26 +289,20 @@
                 <input 
                   type="number" 
                   value={basePrice} 
-                  onChange={(e) => { 
-                    const newValue = Number(e.target.value);
-                    setBasePrice(newValue);
-                    saveToLocalStorage('basePrice', newValue);
-                  }} 
+                  onChange={(e) => setBasePrice(Number(e.target.value))} 
                   placeholder="Введите базовую цену"
                 />
+                <div className="subText">Это цена за 1 м² для расчета рыночной стоимости.</div>
               </div>
               <div>
                 <label>Целевая доходность (%)</label>
                 <input 
                   type="number" 
                   value={growthRate} 
-                  onChange={(e) => { 
-                    const newValue = Number(e.target.value);
-                    setGrowthRate(newValue);
-                    saveToLocalStorage('growthRate', newValue);
-                  }} 
+                  onChange={(e) => setGrowthRate(Number(e.target.value))} 
                   placeholder="Введите доходность"
                 />
+                <div className="subText">Целевая доходность в годовых процентах.</div>
               </div>
             </div>
           </div>
@@ -341,7 +343,7 @@
                     placeholder="Количество"
                   />
                   <button 
-                    className="btnSmall" 
+                    className="btnSmallDanger" 
                     onClick={() => {
                       const updatedTypes = types.filter((_, i) => i !== index);
                       setTypes(updatedTypes);
@@ -381,7 +383,7 @@
                     placeholder="Сумма"
                   />
                   <button 
-                    className="btnSmall" 
+                    className="btnSmallDanger" 
                     onClick={() => {
                       const updatedExpenses = expenses.filter((_, i) => i !== index);
                       setExpenses(updatedExpenses);
@@ -431,6 +433,16 @@
 
           <div className="footer">
             <span>Проект Arconic © 2025</span>
+          </div>
+
+          <div className="footer">
+            <h2>Стоимость вилл по типам</h2>
+            {villaCosts.map((villa, index) => (
+              <div key={index}>
+                <h3>{villa.typeName}</h3>
+                <p>Стоимость виллы: {villa.villaCost.toLocaleString()} $</p>
+              </div>
+            ))}
           </div>
         </div>
       );

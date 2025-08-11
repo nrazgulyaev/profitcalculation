@@ -109,29 +109,16 @@
 <body>
   <header>Villa Revenue & Asset Split Calculator</header>
   <div class="container">
+    <h2>Типы вилл</h2>
+    <div id="villaTypes"></div>
     <div class="input-group">
-      <label for="villa-type">Тип виллы</label>
-      <input type="text" id="villa-type" placeholder="Введите тип виллы">
+      <button class="btn" id="addVillaBtn">Добавить тип виллы</button>
     </div>
 
+    <h2>Ежемесячные затраты</h2>
+    <div id="monthlyExpenses"></div>
     <div class="input-group">
-      <label for="villa-area">Площадь (м²)</label>
-      <input type="number" id="villa-area" placeholder="Введите площадь виллы">
-    </div>
-
-    <div class="input-group">
-      <label for="villa-count">Количество вилл</label>
-      <input type="number" id="villa-count" placeholder="Введите количество вилл">
-    </div>
-
-    <div class="input-group">
-      <label for="growth-rate">Целевая доходность (%)</label>
-      <input type="number" id="growth-rate" placeholder="Введите доходность в %">
-    </div>
-
-    <div class="input-group">
-      <label for="monthly-expenses">Ежемесячные затраты ($)</label>
-      <input type="number" id="monthly-expenses" placeholder="Введите ежемесячные затраты">
+      <button class="btn" id="addExpenseBtn">Добавить затраты</button>
     </div>
 
     <div class="button-group">
@@ -142,55 +129,131 @@
   </div>
 
   <script>
+    // Массивы для хранения типов вилл и ежемесячных затрат
+    let villaTypes = [];
+    let monthlyExpenses = [];
+
+    // Функция для добавления нового типа виллы
+    document.getElementById('addVillaBtn').onclick = function() {
+      const villaId = Date.now();
+      villaTypes.push({ id: villaId, name: '', area: '', count: '' });
+      renderVillaTypes();
+    };
+
+    // Функция для удаления типа виллы
+    function removeVillaType(id) {
+      villaTypes = villaTypes.filter(villa => villa.id !== id);
+      renderVillaTypes();
+    }
+
+    // Функция для рендеринга списка типов вилл
+    function renderVillaTypes() {
+      const villaTypesContainer = document.getElementById('villaTypes');
+      villaTypesContainer.innerHTML = '';
+
+      villaTypes.forEach(villa => {
+        villaTypesContainer.innerHTML += `
+          <div class="villa-item">
+            <input type="text" value="${villa.name}" placeholder="Тип виллы" onchange="updateVillaType(${villa.id}, 'name', this.value)">
+            <input type="number" value="${villa.area}" placeholder="Площадь (м²)" onchange="updateVillaType(${villa.id}, 'area', this.value)">
+            <input type="number" value="${villa.count}" placeholder="Количество" onchange="updateVillaType(${villa.id}, 'count', this.value)">
+            <button class="btn" onclick="removeVillaType(${villa.id})">Удалить</button>
+          </div>
+        `;
+      });
+    }
+
+    // Функция для обновления типа виллы
+    function updateVillaType(id, field, value) {
+      villaTypes = villaTypes.map(villa => {
+        if (villa.id === id) {
+          villa[field] = value;
+        }
+        return villa;
+      });
+    }
+
+    // Функция для добавления новых затрат по месяцам
+    document.getElementById('addExpenseBtn').onclick = function() {
+      const expenseId = Date.now();
+      monthlyExpenses.push({ id: expenseId, month: '', year: '', amount: '' });
+      renderMonthlyExpenses();
+    };
+
+    // Функция для удаления затрат по месяцам
+    function removeExpense(id) {
+      monthlyExpenses = monthlyExpenses.filter(expense => expense.id !== id);
+      renderMonthlyExpenses();
+    }
+
+    // Функция для рендеринга затрат по месяцам
+    function renderMonthlyExpenses() {
+      const expensesContainer = document.getElementById('monthlyExpenses');
+      expensesContainer.innerHTML = '';
+
+      monthlyExpenses.forEach(expense => {
+        expensesContainer.innerHTML += `
+          <div class="villa-item">
+            <input type="month" value="${expense.month}" onchange="updateExpense(${expense.id}, 'month', this.value)">
+            <input type="number" value="${expense.year}" placeholder="Год" onchange="updateExpense(${expense.id}, 'year', this.value)">
+            <input type="number" value="${expense.amount}" placeholder="Затраты" onchange="updateExpense(${expense.id}, 'amount', this.value)">
+            <button class="btn" onclick="removeExpense(${expense.id})">Удалить</button>
+          </div>
+        `;
+      });
+    }
+
+    // Функция для обновления затрат по месяцам
+    function updateExpense(id, field, value) {
+      monthlyExpenses = monthlyExpenses.map(expense => {
+        if (expense.id === id) {
+          expense[field] = value;
+        }
+        return expense;
+      });
+    }
+
+    // Функция для вычисления цены виллы и рыночной стоимости
     function calculate() {
-      const villaType = document.getElementById('villa-type').value;
-      const villaArea = parseFloat(document.getElementById('villa-area').value);
-      const villaCount = parseInt(document.getElementById('villa-count').value);
       const growthRate = parseFloat(document.getElementById('growth-rate').value);
-      const monthlyExpenses = parseFloat(document.getElementById('monthly-expenses').value);
+      const costPerM2 = 1200; // Себестоимость за м²
 
-      if (!villaType || !villaArea || !villaCount || !growthRate || !monthlyExpenses) {
-        document.getElementById('results').innerHTML = '<p class="error">Пожалуйста, заполните все поля!</p>';
-        return;
-      }
-
-      // Расчеты
-      const totalArea = villaArea * villaCount;
-      const costPerM2 = 1200;
-      const totalCost = totalArea * costPerM2;
-
+      let totalArea = 0;
+      let totalCost = 0;
       let totalRevenue = 0;
-      let cumulativeGrowth = 0;
 
-      // Накапливаем доходность
-      for (let i = 0; i < 12; i++) {
-        cumulativeGrowth += (totalCost + totalRevenue) * (growthRate / 100) / 12;
-        totalRevenue = cumulativeGrowth;
-      }
+      // Рассчитываем общую площадь и стоимость
+      villaTypes.forEach(villa => {
+        totalArea += parseFloat(villa.area) * parseInt(villa.count);
+      });
+      totalCost = totalArea * costPerM2;
 
-      // Наценка на 1 м²
-      const markupPerM2 = cumulativeGrowth / totalArea;
+      // Рассчитываем доходность
+      monthlyExpenses.forEach(expense => {
+        totalRevenue += parseFloat(expense.amount) * (growthRate / 100);
+      });
 
-      // Рыночная стоимость за м²
+      const markupPerM2 = totalRevenue / totalArea;
       const marketPricePerM2 = costPerM2 + markupPerM2;
 
-      const villaPrice = marketPricePerM2 * villaArea;
-
-      // Отображаем результаты
-      const resultHTML = `
+      // Выводим результаты
+      const results = `
         <h2>Результаты расчета:</h2>
         <p><b>Общая площадь всех вилл:</b> ${totalArea} м²</p>
         <p><b>Общая себестоимость:</b> $${totalCost.toFixed(2)}</p>
         <p><b>Наценка на 1 м²:</b> $${markupPerM2.toFixed(2)}</p>
         <p><b>Предлагаемая рыночная стоимость м²:</b> $${marketPricePerM2.toFixed(2)}</p>
         <div class="villa-list">
-          <div class="villa-item">
-            <p><b>Тип виллы:</b> ${villaType}</p>
-            <p><b>Цена виллы (${villaArea} м²):</b> $${villaPrice.toFixed(2)}</p>
-          </div>
+          ${villaTypes.map(villa => `
+            <div class="villa-item">
+              <p><b>Тип виллы:</b> ${villa.name}</p>
+              <p><b>Цена виллы (${villa.area} м²):</b> $${(villa.area * marketPricePerM2).toFixed(2)}</p>
+            </div>
+          `).join('')}
         </div>
       `;
-      document.getElementById('results').innerHTML = resultHTML;
+
+      document.getElementById('results').innerHTML = results;
     }
   </script>
 </body>

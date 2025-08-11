@@ -148,6 +148,11 @@
       <input type="number" id="cost-per-m2" value="1200" placeholder="Введите себестоимость за м²">
     </div>
 
+    <h2>Текущий месяц</h2>
+    <div>
+      <p>Текущий месяц: <b id="currentMonth">Август 2025</b></p>
+    </div>
+
     <div class="button-group">
       <button class="btn" onclick="calculate()">Рассчитать</button>
     </div>
@@ -267,7 +272,7 @@
     // Функция для получения списка лет
     function getYearOptions() {
       const currentYear = new Date().getFullYear();
-      return [currentYear, currentYear + 1, currentYear + 2];
+      return [currentYear - 1, currentYear, currentYear + 1];
     }
 
     // Функция для вычисления всех данных и вывода результатов

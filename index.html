@@ -3,294 +3,195 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arconic · Villa Revenue & Asset Split</title>
-  <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
-  <!-- React 18 + Babel -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <title>Villa Revenue & Asset Split Calculator</title>
   <style>
-    html, body, #root {
-      height: 100%;
-      margin: 0;
+    body {
       font-family: 'Arial', sans-serif;
-      background-color: #f9fafb;
+      background-color: #f4f7fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
     }
-    .app-container {
+
+    header {
+      background-color: #00796b;
       padding: 20px;
+      color: white;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .container {
       max-width: 1200px;
-      margin: 0 auto;
+      margin: 20px auto;
+      padding: 20px;
       background-color: white;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-    }
-    .form-container {
-      margin-bottom: 30px;
-    }
-    .input-field {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    .button-danger {
-      background-color: #e74c3c;
-      color: white;
-    }
-    .button-danger:hover {
-      background-color: #c0392b;
-    }
-    .button-add {
-      background-color: #e0e0e0;
-      color: #111827;
-    }
-    .button-add:hover {
-      background-color: #d4d4d4;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-    }
-    .card-title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .row {
+
+    .input-group {
       display: flex;
-      gap: 20px;
-    }
-    .column {
-      flex: 1;
-    }
-    .type-villa {
+      gap: 16px;
       margin-bottom: 20px;
     }
-    .table-wrap {
-      max-height: 260px;
-      overflow: auto;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-    }
-    .table {
+
+    .input-group input,
+    .input-group select {
+      padding: 10px;
       width: 100%;
-      border-collapse: collapse;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    .input-group label {
+      width: 150px;
+      font-weight: bold;
+    }
+
+    .button-group {
+      text-align: right;
+    }
+
+    .btn {
+      background-color: #00796b;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn:hover {
+      background-color: #004d40;
+    }
+
+    h2 {
+      color: #00796b;
+    }
+
+    .results {
+      background-color: #f1f8e9;
+      padding: 20px;
+      margin-top: 30px;
+      border-radius: 8px;
+    }
+
+    .results p {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    .results b {
+      color: #00796b;
+    }
+
+    .error {
+      color: red;
       font-size: 14px;
     }
-    .table th, .table td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
+
+    .villa-list {
+      margin-top: 20px;
     }
-    .select {
-      width: 100%;
+
+    .villa-item {
+      margin-bottom: 15px;
       padding: 10px;
-      margin: 10px 0;
+      background-color: #f9f9f9;
       border: 1px solid #ddd;
-      border-radius: 4px;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <header>Villa Revenue & Asset Split Calculator</header>
+  <div class="container">
+    <div class="input-group">
+      <label for="villa-type">Тип виллы</label>
+      <input type="text" id="villa-type" placeholder="Введите тип виллы">
+    </div>
 
-  <script type="text/babel">
-    const { useState, useMemo } = React;
+    <div class="input-group">
+      <label for="villa-area">Площадь (м²)</label>
+      <input type="number" id="villa-area" placeholder="Введите площадь виллы">
+    </div>
 
-    function App() {
-      // Состояния для типов вилл, затрат и доходности
-      const [villaTypes, setVillaTypes] = useState([
-        { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
-        { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
-        { id: 3, name: "Вилла тип 3", area: 201, count: 1 },
-      ]);
-      
-      const [investorExpenses, setInvestorExpenses] = useState([]);
-      const [totalExpenses, setTotalExpenses] = useState([]);
-      const [interestRate, setInterestRate] = useState(8.33); // Целевая доходность в годовых
-      const [baseCostPerM2, setBaseCostPerM2] = useState(1200); // Себестоимость квадратного метра
+    <div class="input-group">
+      <label for="villa-count">Количество вилл</label>
+      <input type="number" id="villa-count" placeholder="Введите количество вилл">
+    </div>
 
-      // Добавление нового типа виллы
-      const addVillaType = () => {
-        const newId = Math.max(...villaTypes.map(villa => villa.id)) + 1;
-        setVillaTypes([
-          ...villaTypes,
-          { id: newId, name: `Вилла тип ${newId}`, area: 100, count: 1 },
-        ]);
-      };
+    <div class="input-group">
+      <label for="growth-rate">Целевая доходность (%)</label>
+      <input type="number" id="growth-rate" placeholder="Введите доходность в %">
+    </div>
 
-      // Удаление типа виллы
-      const removeVillaType = (id) => {
-        setVillaTypes(villaTypes.filter(villa => villa.id !== id));
-      };
+    <div class="input-group">
+      <label for="monthly-expenses">Ежемесячные затраты ($)</label>
+      <input type="number" id="monthly-expenses" placeholder="Введите ежемесячные затраты">
+    </div>
 
-      // Добавление затрат инвестора
-      const addInvestorExpense = (month, year, amount) => {
-        setInvestorExpenses([...investorExpenses, { month, year, amount: parseFloat(amount) }]);
-      };
+    <div class="button-group">
+      <button class="btn" onclick="calculate()">Рассчитать</button>
+    </div>
 
-      // Добавление общих затрат
-      const addTotalExpense = (month, year, amount) => {
-        setTotalExpenses([...totalExpenses, { month, year, amount: parseFloat(amount) }]);
-      };
+    <div id="results" class="results"></div>
+  </div>
 
-      // Вычисление общей площади всех вилл
-      const totalArea = useMemo(() => villaTypes.reduce((sum, villa) => sum + (villa.area * villa.count), 0), [villaTypes]);
+  <script>
+    function calculate() {
+      const villaType = document.getElementById('villa-type').value;
+      const villaArea = parseFloat(document.getElementById('villa-area').value);
+      const villaCount = parseInt(document.getElementById('villa-count').value);
+      const growthRate = parseFloat(document.getElementById('growth-rate').value);
+      const monthlyExpenses = parseFloat(document.getElementById('monthly-expenses').value);
 
-      // Вычисление стоимости квадратного метра с учетом доходности
-      const calculatePricePerSquareMeter = () => {
-        const totalInvested = investorExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-        const profit = totalInvested * (interestRate / 100);
-        return baseCostPerM2 + (profit / totalArea);
-      };
+      if (!villaType || !villaArea || !villaCount || !growthRate || !monthlyExpenses) {
+        document.getElementById('results').innerHTML = '<p class="error">Пожалуйста, заполните все поля!</p>';
+        return;
+      }
 
-      return (
-        <div className="app-container">
-          <h1>Расчет стоимости виллы</h1>
+      // Расчеты
+      const totalArea = villaArea * villaCount;
+      const costPerM2 = 1200;
+      const totalCost = totalArea * costPerM2;
 
-          {/* Форма для ввода типов вилл */}
-          <div className="card">
-            <h2 className="card-title">Типы вилл</h2>
-            {villaTypes.map((villa, index) => (
-              <div key={villa.id} className="type-villa">
-                <label>Название виллы:</label>
-                <input
-                  className="input-field"
-                  value={villa.name}
-                  onChange={(e) => {
-                    const updatedVillaTypes = [...villaTypes];
-                    updatedVillaTypes[index].name = e.target.value;
-                    setVillaTypes(updatedVillaTypes);
-                  }}
-                />
-                <label>Площадь (м²):</label>
-                <input
-                  className="input-field"
-                  type="number"
-                  value={villa.area}
-                  onChange={(e) => {
-                    const updatedVillaTypes = [...villaTypes];
-                    updatedVillaTypes[index].area = e.target.value;
-                    setVillaTypes(updatedVillaTypes);
-                  }}
-                />
-                <label>Количество:</label>
-                <input
-                  className="input-field"
-                  type="number"
-                  value={villa.count}
-                  onChange={(e) => {
-                    const updatedVillaTypes = [...villaTypes];
-                    updatedVillaTypes[index].count = e.target.value;
-                    setVillaTypes(updatedVillaTypes);
-                  }}
-                />
-                <button
-                  className="button button-danger"
-                  onClick={() => removeVillaType(villa.id)}
-                >
-                  Удалить
-                </button>
-              </div>
-            ))}
-            <button className="button button-add" onClick={addVillaType}>+ Добавить тип виллы</button>
-          </div>
+      let totalRevenue = 0;
+      let cumulativeGrowth = 0;
 
-          {/* Форма для ввода затрат инвестора */}
-          <div className="card">
-            <h2 className="card-title">Затраты инвестора</h2>
-            <div className="row">
-              <select className="select">
-                <option value="">Выберите месяц</option>
-                {["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"].map((month, index) => (
-                  <option key={index} value={month}>{month}</option>
-                ))}
-              </select>
-              <input
-                className="input-field"
-                type="number"
-                placeholder="Сумма"
-              />
-              <select className="select">
-                <option value="">Выберите год</option>
-                {[2024, 2025, 2026].map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-            </div>
-            <button
-              className="button"
-              onClick={() => {
-                // Логика добавления затрат
-              }}
-            >
-              Добавить затраты инвестора
-            </button>
-          </div>
+      // Накапливаем доходность
+      for (let i = 0; i < 12; i++) {
+        cumulativeGrowth += (totalCost + totalRevenue) * (growthRate / 100) / 12;
+        totalRevenue = cumulativeGrowth;
+      }
 
-          {/* Форма для ввода общих затрат */}
-          <div className="card">
-            <h2 className="card-title">Общие затраты</h2>
-            <div className="row">
-              <select className="select">
-                <option value="">Выберите месяц</option>
-                {["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"].map((month, index) => (
-                  <option key={index} value={month}>{month}</option>
-                ))}
-              </select>
-              <input
-                className="input-field"
-                type="number"
-                placeholder="Сумма"
-              />
-              <select className="select">
-                <option value="">Выберите год</option>
-                {[2024, 2025, 2026].map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-            </div>
-            <button
-              className="button"
-              onClick={() => {
-                // Логика добавления общих затрат
-              }}
-            >
-              Добавить общие затраты
-            </button>
-          </div>
+      // Наценка на 1 м²
+      const markupPerM2 = cumulativeGrowth / totalArea;
 
-          {/* Рассчитанная стоимость квадратного метра */}
-          <div className="card">
-            <h2 className="card-title">Результат расчета</h2>
-            <p>Общая площадь всех вилл: {totalArea} м²</p>
-            <p>Цена за 1 м²: ${calculatePricePerSquareMeter().toFixed(2)}</p>
+      // Рыночная стоимость за м²
+      const marketPricePerM2 = costPerM2 + markupPerM2;
+
+      const villaPrice = marketPricePerM2 * villaArea;
+
+      // Отображаем результаты
+      const resultHTML = `
+        <h2>Результаты расчета:</h2>
+        <p><b>Общая площадь всех вилл:</b> ${totalArea} м²</p>
+        <p><b>Общая себестоимость:</b> $${totalCost.toFixed(2)}</p>
+        <p><b>Наценка на 1 м²:</b> $${markupPerM2.toFixed(2)}</p>
+        <p><b>Предлагаемая рыночная стоимость м²:</b> $${marketPricePerM2.toFixed(2)}</p>
+        <div class="villa-list">
+          <div class="villa-item">
+            <p><b>Тип виллы:</b> ${villaType}</p>
+            <p><b>Цена виллы (${villaArea} м²):</b> $${villaPrice.toFixed(2)}</p>
           </div>
         </div>
-      );
+      `;
+      document.getElementById('results').innerHTML = resultHTML;
     }
-
-    ReactDOM.render(<App />, document.getElementById("root"));
   </script>
 </body>
 </html>

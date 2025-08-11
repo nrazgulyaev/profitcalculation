@@ -157,8 +157,31 @@
 
   <script>
     // Массивы для хранения типов вилл и ежемесячных затрат
-    let villaTypes = [];
-    let monthlyExpenses = [];
+    let villaTypes = [
+      { id: Date.now() + 1, name: 'Вилла тип 1', area: 142.7, count: 6 },
+      { id: Date.now() + 2, name: 'Вилла тип 2', area: 192, count: 2 },
+      { id: Date.now() + 3, name: 'Вилла тип 3', area: 201, count: 1 }
+    ];
+
+    let monthlyExpenses = [
+      { id: Date.now() + 4, month: '04', year: '2024', amount: 47185 },
+      { id: Date.now() + 5, month: '05', year: '2024', amount: 9254 },
+      { id: Date.now() + 6, month: '06', year: '2024', amount: 0 },
+      { id: Date.now() + 7, month: '07', year: '2024', amount: 0 },
+      { id: Date.now() + 8, month: '08', year: '2024', amount: 0 },
+      { id: Date.now() + 9, month: '09', year: '2024', amount: 307 },
+      { id: Date.now() + 10, month: '10', year: '2024', amount: 15405 },
+      { id: Date.now() + 11, month: '11', year: '2024', amount: 707 },
+      { id: Date.now() + 12, month: '12', year: '2024', amount: 9263 },
+      { id: Date.now() + 13, month: '01', year: '2025', amount: 9100 },
+      { id: Date.now() + 14, month: '02', year: '2025', amount: 22945 },
+      { id: Date.now() + 15, month: '03', year: '2025', amount: 20468 },
+      { id: Date.now() + 16, month: '04', year: '2025', amount: 75649 },
+      { id: Date.now() + 17, month: '05', year: '2025', amount: 87493 },
+      { id: Date.now() + 18, month: '06', year: '2025', amount: 57927 },
+      { id: Date.now() + 19, month: '07', year: '2025', amount: 97982 },
+      { id: Date.now() + 20, month: '08', year: '2025', amount: 43675 }
+    ];
 
     // Функция для добавления нового типа виллы
     document.getElementById('addVillaBtn').onclick = function() {
@@ -271,7 +294,7 @@
     }
 
     // Функция для вычисления всех данных и вывода результатов
-    function calculate() {
+    document.getElementById('calculateBtn').onclick = function() {
       const growthRate = parseFloat(document.getElementById('growth-rate').value);
       const costPerM2 = parseFloat(document.getElementById('cost-per-m2').value); // Себестоимость за м²
 

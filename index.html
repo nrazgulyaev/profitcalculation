@@ -191,11 +191,22 @@
         { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
         { id: 3, name: "Вилла тип 3", area: 201, count: 1 }
       ]);
-      const [basePrice, setBasePrice] = useState(2400);
-      const [growthRate, setGrowthRate] = useState(10); // 10% годовых
+      
+      // Считывание данных из Local Storage
+      const storedBasePrice = localStorage.getItem('basePrice');
+      const storedGrowthRate = localStorage.getItem('growthRate');
+      
+      const [basePrice, setBasePrice] = useState(storedBasePrice ? Number(storedBasePrice) : 2400);
+      const [growthRate, setGrowthRate] = useState(storedGrowthRate ? Number(storedGrowthRate) : 10);
       const [costPerM2, setCostPerM2] = useState(1200);
       const [investorInvestPct, setInvestorInvestPct] = useState(90);
       const [investorProfitPct, setInvestorProfitPct] = useState(45);
+
+      // Сохранение в Local Storage
+      useEffect(() => {
+        localStorage.setItem('basePrice', basePrice);
+        localStorage.setItem('growthRate', growthRate);
+      }, [basePrice, growthRate]);
 
       // Автоматическое заполнение месяцев
       const getMonthsInRange = (startYear, startMonth, endYear, endMonth) => {

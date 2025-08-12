@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arconic · Villa Revenue & Asset Split</title>
+  <title>Arcdonic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -34,6 +34,31 @@
       border-radius: 16px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
       padding: 32px;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 40px;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      border-radius: 8px 8px 0 0;
+      transition: background-color 0.3s ease;
+    }
+
+    .tab.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .tab:hover {
+      background-color: #ddd;
     }
 
     .header {
@@ -185,28 +210,37 @@
     const { useState, useMemo, useEffect } = React;
 
     function VillaRevenueSplitApp() {
-      // -------- ИСХОДНЫЕ ДАННЫЕ --------
-      const [types, setTypes] = useState([
-        { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
-        { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
-        { id: 3, name: "Вилла тип 3", area: 201, count: 1 }
-      ]);
+      // Состояние для текущего проекта
+      const [activeProject, setActiveProject] = useState('Arconic');
+
+      // Данные для каждого проекта
+      const projectsData = {
+        Arconic: {
+          types: [
+            { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
+            { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
+            { id: 3, name: "Вилла тип 3", area: 201, count: 1 }
+          ],
+          basePrice: 2400,
+          growthRate: 10,
+        },
+        Shmonic: {
+          types: [
+            { id: 1, name: "Вилла тип A", area: 150, count: 4 },
+            { id: 2, name: "Вилла тип B", area: 180, count: 3 },
+            { id: 3, name: "Вилла тип C", area: 200, count: 2 }
+          ],
+          basePrice: 2200,
+          growthRate: 8,
+        }
+      };
+
+      // Извлекаем данные проекта на основе текущего активного проекта
+      const { types, basePrice, growthRate } = projectsData[activeProject];
       
-      // Считывание данных из Local Storage
-      const storedBasePrice = localStorage.getItem('basePrice');
-      const storedGrowthRate = localStorage.getItem('growthRate');
-      
-      const [basePrice, setBasePrice] = useState(storedBasePrice ? Number(storedBasePrice) : 2400);
-      const [growthRate, setGrowthRate] = useState(storedGrowthRate ? Number(storedGrowthRate) : 10);
       const [costPerM2, setCostPerM2] = useState(1200);
       const [investorInvestPct, setInvestorInvestPct] = useState(90);
       const [investorProfitPct, setInvestorProfitPct] = useState(45);
-
-      // Сохранение в Local Storage
-      useEffect(() => {
-        localStorage.setItem('basePrice', basePrice);
-        localStorage.setItem('growthRate', growthRate);
-      }, [basePrice, growthRate]);
 
       // Автоматическое заполнение месяцев
       const getMonthsInRange = (startYear, startMonth, endYear, endMonth) => {
@@ -297,8 +331,24 @@
 
       return (
         <div className="container">
+          {/* Вкладки для переключения между проектами */}
+          <div className="tabs">
+            <div 
+              className={`tab ${activeProject === 'Arconic' ? 'active' : ''}`} 
+              onClick={() => setActiveProject('Arconic')}
+            >
+              Arconic
+            </div>
+            <div 
+              className={`tab ${activeProject === 'Shmonic' ? 'active' : ''}`} 
+              onClick={() => setActiveProject('Shmonic')}
+            >
+              Shmonic
+            </div>
+          </div>
+
           <div className="header">
-            <h1>Arconic · Villa Revenue & Asset Split</h1>
+            <h1>{activeProject} · Villa Revenue & Asset Split</h1>
             <div>
               <div>
                 <label>Базовая цена за м²</label>

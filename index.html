@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arconic · Villa Revenue & Asset Split</title>
+  <title>Arco3nic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    /* Общие стили */
     * {
       margin: 0;
       padding: 0;
@@ -176,6 +175,33 @@
       border: 1px solid #ddd;
     }
 
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #4CAF50;
+      margin-bottom: 16px;
+    }
+
+    .card-footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      color: #777;
+    }
+
+    .highlighted {
+      color: #4CAF50;
+      font-weight: 600;
+    }
+
   </style>
 </head>
 <body>
@@ -185,30 +211,17 @@
     const { useState, useMemo, useEffect } = React;
 
     function VillaRevenueSplitApp() {
-      // -------- ИСХОДНЫЕ ДАННЫЕ --------
       const [types, setTypes] = useState([
         { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
         { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
         { id: 3, name: "Вилла тип 3", area: 201, count: 1 }
       ]);
-      
-      // Считывание данных из Local Storage
-      const storedBasePrice = localStorage.getItem('basePrice');
-      const storedGrowthRate = localStorage.getItem('growthRate');
-      
-      const [basePrice, setBasePrice] = useState(storedBasePrice ? Number(storedBasePrice) : 2400);
-      const [growthRate, setGrowthRate] = useState(storedGrowthRate ? Number(storedGrowthRate) : 10);
+      const [basePrice, setBasePrice] = useState(2400);
+      const [growthRate, setGrowthRate] = useState(10); // 10% годовых
       const [costPerM2, setCostPerM2] = useState(1200);
       const [investorInvestPct, setInvestorInvestPct] = useState(90);
       const [investorProfitPct, setInvestorProfitPct] = useState(45);
 
-      // Сохранение в Local Storage
-      useEffect(() => {
-        localStorage.setItem('basePrice', basePrice);
-        localStorage.setItem('growthRate', growthRate);
-      }, [basePrice, growthRate]);
-
-      // Автоматическое заполнение месяцев
       const getMonthsInRange = (startYear, startMonth, endYear, endMonth) => {
         const months = [];
         let currentYear = startYear;
@@ -226,12 +239,11 @@
         return months;
       };
 
-      const currentMonth = new Date().getMonth() + 1; // Текущий месяц
-      const currentYear = new Date().getFullYear(); // Текущий год
+      const currentMonth = new Date().getMonth() + 1; 
+      const currentYear = new Date().getFullYear(); 
 
-      const monthsList = getMonthsInRange(2024, 4, currentYear, currentMonth); // С апреля 2024 года по текущий месяц
+      const monthsList = getMonthsInRange(2024, 4, currentYear, currentMonth); 
 
-      // Данные затрат
       const [expenses, setExpenses] = useState(() => {
         const storedExpenses = JSON.parse(localStorage.getItem('expenses')) || {};
         const expensesArray = monthsList.map(month => ({ month, amount: storedExpenses[month] || 0 }));
@@ -248,7 +260,6 @@
         }, {})));
       };
 
-      // Расчет доходности
       const calcGrowth = (amount) => (amount * (growthRate / 100));
 
       const totalArea = useMemo(() => types.reduce((sum, type) => sum + type.area * type.count, 0), [types]);
@@ -271,29 +282,13 @@
             cumulativeGrowth,
             markupPerM2,
             marketPrice,
-            marketPriceWithTaxAndCommission: marketPrice / 0.85 // Цена с учетом налога и комиссии
+            marketPriceWithTaxAndCommission: marketPrice / 0.85, // с учётом комиссии и налога
           };
         });
         return results;
       };
 
       const results = calculateResults();
-
-      const calculateVillaValue = () => {
-        const villaValues = types.map(type => {
-          const villaBasePrice = basePrice * type.area;
-          const totalVillaPrice = villaBasePrice / 0.85; // Учитываем комиссию и налог
-          return {
-            name: type.name,
-            area: type.area,
-            count: type.count,
-            unitPrice: totalVillaPrice // Стоимость одной виллы
-          };
-        });
-        return villaValues;
-      };
-
-      const villaValues = calculateVillaValue();
 
       return (
         <div className="container">
@@ -431,7 +426,7 @@
                 <th>Накопленная доходность</th>
                 <th>Наценка на 1 м²</th>
                 <th>Рыночная цена</th>
-                <th>Рыночная цена с налогом и комиссией</th> {/* Новая колонка */}
+                <th>Рыночная цена + налог и комиссия</th>
               </tr>
             </thead>
             <tbody>
@@ -443,29 +438,7 @@
                   <td>{result.cumulativeGrowth.toLocaleString()}</td>
                   <td>{result.markupPerM2.toLocaleString()}</td>
                   <td>{result.marketPrice.toLocaleString()}</td>
-                  <td>{result.marketPriceWithTaxAndCommission.toLocaleString()}</td> {/* Добавленная ячейка */}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <h2>Стоимость вилл по типам на текущую дату</h2>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Тип виллы</th>
-                <th>Площадь</th>
-                <th>Количество</th>
-                <th>Стоимость 1 виллы</th> {/* Стоимость одной виллы */}
-              </tr>
-            </thead>
-            <tbody>
-              {villaValues.map((villa, index) => (
-                <tr key={index}>
-                  <td>{villa.name}</td>
-                  <td>{villa.area} м²</td>
-                  <td>{villa.count}</td>
-                  <td>{villa.unitPrice.toLocaleString()}</td> {/* Стоимость одной виллы */}
+                  <td>{result.marketPriceWithTaxAndCommission.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>

@@ -36,29 +36,34 @@
       padding: 32px;
     }
 
-    .header {
+    .tabs {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 40px;
+      justify-content: space-around;
+      margin-bottom: 32px;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      cursor: pointer;
+      font-size: 18px;
+      color: #4CAF50;
+      font-weight: 600;
+    }
+
+    .tab.active {
+      border-bottom: 2px solid #4CAF50;
+      color: #000;
+    }
+
+    .content {
+      padding: 20px;
     }
 
     .header h1 {
       font-size: 30px;
       font-weight: 600;
       color: #4CAF50;
-    }
-
-    .header input {
-      padding: 10px 16px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
-      transition: border-color 0.3s ease;
-    }
-
-    .header input:focus {
-      border-color: #4CAF50;
     }
 
     .toolbar {
@@ -83,12 +88,6 @@
       margin-bottom: 8px;
     }
 
-    .toolbarItem .subText {
-      font-size: 12px;
-      color: #777;
-      margin-top: 4px;
-    }
-
     .input, .select {
       padding: 12px 16px;
       font-size: 16px;
@@ -102,7 +101,7 @@
       border-color: #4CAF50;
     }
 
-    .btn, .btnSmall {
+    .btn {
       padding: 12px 24px;
       font-size: 16px;
       border-radius: 8px;
@@ -164,315 +163,143 @@
       text-decoration: underline;
     }
 
-    .datePicker {
-      display: flex;
-      gap: 8px;
-    }
-
-    .datePicker select {
-      padding: 10px 14px;
-      font-size: 14px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-    }
-
   </style>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useMemo, useEffect } = React;
+    const { useState, useMemo } = React;
 
     function VillaRevenueSplitApp() {
-      // -------- ИСХОДНЫЕ ДАННЫЕ --------
-      const [types, setTypes] = useState([
-        { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
-        { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
-        { id: 3, name: "Вилла тип 3", area: 201, count: 1 }
-      ]);
-      
-      // Считывание данных из Local Storage
-      const storedBasePrice = localStorage.getItem('basePrice');
-      const storedGrowthRate = localStorage.getItem('growthRate');
-      
-      const [basePrice, setBasePrice] = useState(storedBasePrice ? Number(storedBasePrice) : 2400);
-      const [growthRate, setGrowthRate] = useState(storedGrowthRate ? Number(storedGrowthRate) : 10);
-      const [costPerM2, setCostPerM2] = useState(1200);
-      const [investorInvestPct, setInvestorInvestPct] = useState(90);
-      const [investorProfitPct, setInvestorProfitPct] = useState(45);
+      const [activeTab, setActiveTab] = useState('project1'); // Стейт для текущей вкладки
 
-      // Сохранение в Local Storage
-      useEffect(() => {
-        localStorage.setItem('basePrice', basePrice);
-        localStorage.setItem('growthRate', growthRate);
-      }, [basePrice, growthRate]);
-
-      // Автоматическое заполнение месяцев
-      const getMonthsInRange = (startYear, startMonth, endYear, endMonth) => {
-        const months = [];
-        let currentYear = startYear;
-        let currentMonth = startMonth;
-        
-        while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
-          const monthName = `${currentMonth} ${currentYear}`;
-          months.push(monthName);
-          currentMonth += 1;
-          if (currentMonth > 12) {
-            currentMonth = 1;
-            currentYear += 1;
-          }
+      // Данные для каждого проекта
+      const projects = {
+        project1: {
+          name: "AHAO Gardens",
+          types: [
+            { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
+            { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
+            { id: 3, name: "Вилла тип 3", area: 201, count: 1 }
+          ],
+          basePrice: 2400,
+          growthRate: 10,
+          costPerM2: 1200
+        },
+        project2: {
+          name: "Enso Villas",
+          types: [
+            { id: 1, name: "Вилла тип A", area: 130, count: 4 },
+            { id: 2, name: "Вилла тип B", area: 180, count: 3 },
+            { id: 3, name: "Вилла тип C", area: 200, count: 5 }
+          ],
+          basePrice: 2200,
+          growthRate: 8,
+          costPerM2: 1100
         }
-        return months;
       };
 
-      const currentMonth = new Date().getMonth() + 1; // Текущий месяц
-      const currentYear = new Date().getFullYear(); // Текущий год
+      const currentProject = projects[activeTab];
 
-      const monthsList = getMonthsInRange(2024, 4, currentYear, currentMonth); // С апреля 2024 года по текущий месяц
+      const [types, setTypes] = useState(currentProject.types);
+      const [basePrice, setBasePrice] = useState(currentProject.basePrice);
+      const [growthRate, setGrowthRate] = useState(currentProject.growthRate);
+      const [costPerM2, setCostPerM2] = useState(currentProject.costPerM2);
 
-      // Данные затрат
-      const [expenses, setExpenses] = useState(() => {
-        const storedExpenses = JSON.parse(localStorage.getItem('expenses')) || {};
-        const expensesArray = monthsList.map(month => ({ month, amount: storedExpenses[month] || 0 }));
-        return expensesArray;
-      });
-
-      const updateExpense = (index, field, value) => {
-        const newExpenses = [...expenses];
-        newExpenses[index][field] = value;
-        setExpenses(newExpenses);
-        localStorage.setItem('expenses', JSON.stringify(newExpenses.reduce((acc, expense) => {
-          acc[expense.month] = expense.amount;
-          return acc;
-        }, {})));
+      // Функция для переключения между проектами
+      const handleTabChange = (projectKey) => {
+        setActiveTab(projectKey);
+        const project = projects[projectKey];
+        setTypes(project.types);
+        setBasePrice(project.basePrice);
+        setGrowthRate(project.growthRate);
+        setCostPerM2(project.costPerM2);
       };
 
-      // Расчет доходности
-      const calcGrowth = (amount) => (amount * (growthRate / 100));
-
+      // Формируем результаты
       const totalArea = useMemo(() => types.reduce((sum, type) => sum + type.area * type.count, 0), [types]);
       const totalCost = useMemo(() => totalArea * costPerM2, [totalArea, costPerM2]);
 
-      const calculateResults = () => {
-        let totalExpenses = 0;
-        let cumulativeGrowth = 0;
-        const results = expenses.map((expense, index) => {
-          totalExpenses += expense.amount;
-          const growth = calcGrowth(totalExpenses);
-          cumulativeGrowth += growth;
-          const markupPerM2 = cumulativeGrowth / totalArea;
-          const marketPrice = basePrice + markupPerM2;
-
-          return {
-            month: expense.month,
-            expenses: totalExpenses,
-            growth,
-            cumulativeGrowth,
-            markupPerM2,
-            marketPrice,
-            marketPriceWithTaxAndCommission: marketPrice / 0.85 // Цена с учетом налога и комиссии
-          };
-        });
-        return results;
-      };
-
-      const results = calculateResults();
-
-      const calculateVillaValue = () => {
-        const villaValues = types.map(type => {
-          const villaBasePrice = basePrice * type.area;
-          const totalVillaPrice = villaBasePrice / 0.85; // Учитываем комиссию и налог
-          return {
-            name: type.name,
-            area: type.area,
-            count: type.count,
-            unitPrice: totalVillaPrice // Стоимость одной виллы
-          };
-        });
-        return villaValues;
-      };
-
-      const villaValues = calculateVillaValue();
+      const results = types.map(type => {
+        const marketPrice = basePrice + (basePrice * (growthRate / 100));
+        return {
+          name: type.name,
+          area: type.area,
+          count: type.count,
+          marketPrice
+        };
+      });
 
       return (
         <div className="container">
-          <div className="header">
-            <h1>Arconic · Villa Revenue & Asset Split</h1>
-            <div>
-              <div>
+          <div className="tabs">
+            <div 
+              className={`tab ${activeTab === 'project1' ? 'active' : ''}`} 
+              onClick={() => handleTabChange('project1')}
+            >
+              {projects.project1.name}
+            </div>
+            <div 
+              className={`tab ${activeTab === 'project2' ? 'active' : ''}`} 
+              onClick={() => handleTabChange('project2')}
+            >
+              {projects.project2.name}
+            </div>
+          </div>
+
+          <div className="content">
+            <div className="header">
+              <h1>Расчеты для проекта: {currentProject.name}</h1>
+            </div>
+
+            <div className="toolbar">
+              <div className="toolbarItem">
                 <label>Базовая цена за м²</label>
                 <input 
                   type="number" 
                   value={basePrice} 
                   onChange={(e) => setBasePrice(Number(e.target.value))} 
-                  placeholder="Введите базовую цену"
                 />
-                <div className="subText">Это цена за 1 м² для расчета рыночной стоимости.</div>
               </div>
-              <div>
+              <div className="toolbarItem">
                 <label>Целевая доходность (%)</label>
                 <input 
                   type="number" 
                   value={growthRate} 
                   onChange={(e) => setGrowthRate(Number(e.target.value))} 
-                  placeholder="Введите доходность"
                 />
-                <div className="subText">Целевая доходность в годовых процентах.</div>
+              </div>
+              <div className="toolbarItem">
+                <label>Стоимость за м²</label>
+                <input 
+                  type="number" 
+                  value={costPerM2} 
+                  onChange={(e) => setCostPerM2(Number(e.target.value))} 
+                />
               </div>
             </div>
-          </div>
 
-          <div className="toolbar">
-            <div className="toolbarItem">
-              <label>Типы вилл</label>
-              {types.map((type, index) => (
-                <div key={type.id}>
-                  <input 
-                    type="text" 
-                    value={type.name} 
-                    onChange={(e) => {
-                      const updatedTypes = [...types];
-                      updatedTypes[index].name = e.target.value;
-                      setTypes(updatedTypes);
-                    }} 
-                    placeholder="Название виллы"
-                  />
-                  <input 
-                    type="number" 
-                    value={type.area} 
-                    onChange={(e) => {
-                      const updatedTypes = [...types];
-                      updatedTypes[index].area = Number(e.target.value);
-                      setTypes(updatedTypes);
-                    }} 
-                    placeholder="Площадь"
-                  />
-                  <input 
-                    type="number" 
-                    value={type.count} 
-                    onChange={(e) => {
-                      const updatedTypes = [...types];
-                      updatedTypes[index].count = Number(e.target.value);
-                      setTypes(updatedTypes);
-                    }} 
-                    placeholder="Количество"
-                  />
-                  <button 
-                    className="btnSmallDanger" 
-                    onClick={() => {
-                      const updatedTypes = types.filter((_, i) => i !== index);
-                      setTypes(updatedTypes);
-                    }}
-                  >
-                    Удалить
-                  </button>
-                </div>
-              ))}
-              <button 
-                className="btnSmall" 
-                onClick={() => setTypes([...types, { id: types.length + 1, name: "", area: 100, count: 1 }])}
-              >
-                + Добавить тип виллы
-              </button>
-            </div>
-            <div className="toolbarItem">
-              <label>Ежемесячные затраты</label>
-              {expenses.map((expense, index) => (
-                <div key={index}>
-                  <div className="datePicker">
-                    <select 
-                      value={expense.month} 
-                      onChange={(e) => updateExpense(index, 'month', e.target.value)} 
-                      className="select"
-                    >
-                      {monthsList.map((month, idx) => (
-                        <option key={idx} value={month}>{month}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <input 
-                    type="number" 
-                    value={expense.amount} 
-                    onChange={(e) => updateExpense(index, 'amount', Number(e.target.value))}
-                    className="input"
-                    placeholder="Сумма"
-                  />
-                  <button 
-                    className="btnSmallDanger" 
-                    onClick={() => {
-                      const updatedExpenses = expenses.filter((_, i) => i !== index);
-                      setExpenses(updatedExpenses);
-                      localStorage.setItem('expenses', JSON.stringify(updatedExpenses.reduce((acc, expense) => {
-                        acc[expense.month] = expense.amount;
-                        return acc;
-                      }, {})));
-                    }}
-                  >
-                    Удалить
-                  </button>
-                </div>
-              ))}
-              <button className="btnSmall" onClick={() => {
-                const newMonth = monthsList[monthsList.length - 1];
-                setExpenses([...expenses, { month: newMonth, amount: 0 }]);
-              }}>
-                + Добавить расходы
-              </button>
-            </div>
-          </div>
-
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Месяц</th>
-                <th>Затраты</th>
-                <th>Доходность</th>
-                <th>Накопленная доходность</th>
-                <th>Наценка на 1 м²</th>
-                <th>Рыночная цена</th>
-                <th>Рыночная цена с налогом и комиссией</th> {/* Новая колонка */}
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((result, index) => (
-                <tr key={index}>
-                  <td>{result.month}</td>
-                  <td>{result.expenses.toLocaleString()}</td>
-                  <td>{result.growth.toLocaleString()}</td>
-                  <td>{result.cumulativeGrowth.toLocaleString()}</td>
-                  <td>{result.markupPerM2.toLocaleString()}</td>
-                  <td>{result.marketPrice.toLocaleString()}</td>
-                  <td>{result.marketPriceWithTaxAndCommission.toLocaleString()}</td> {/* Добавленная ячейка */}
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Тип виллы</th>
+                  <th>Площадь</th>
+                  <th>Количество</th>
+                  <th>Рыночная цена</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <h2>Стоимость вилл по типам на текущую дату</h2>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Тип виллы</th>
-                <th>Площадь</th>
-                <th>Количество</th>
-                <th>Стоимость 1 виллы</th> {/* Стоимость одной виллы */}
-              </tr>
-            </thead>
-            <tbody>
-              {villaValues.map((villa, index) => (
-                <tr key={index}>
-                  <td>{villa.name}</td>
-                  <td>{villa.area} м²</td>
-                  <td>{villa.count}</td>
-                  <td>{villa.unitPrice.toLocaleString()}</td> {/* Стоимость одной виллы */}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="footer">
-            <span>Проект Arconic © 2025</span>
+              </thead>
+              <tbody>
+                {results.map((result, index) => (
+                  <tr key={index}>
+                    <td>{result.name}</td>
+                    <td>{result.area} м²</td>
+                    <td>{result.count}</td>
+                    <td>{result.marketPrice.toLocaleString()} ₽</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       );

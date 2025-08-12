@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Arcdonic · Villa Revenue & Asset Split</title>
+  <title>Arco7nic · Villa Revenue & Asset Split</title>
   <meta name="description" content="Arconic — калькулятор распределения выручки и активов проекта вилл" />
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -211,11 +211,11 @@
 
     function VillaRevenueSplitApp() {
       // Состояние для текущего проекта
-      const [activeProject, setActiveProject] = useState('Arconic');
+      const [activeProject, setActiveProject] = useState('Ahau Gardens by Arconique');
 
       // Данные для каждого проекта
       const projectsData = {
-        Arconic: {
+        'Ahau Gardens by Arconique': {
           types: [
             { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
             { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
@@ -224,7 +224,7 @@
           basePrice: 2400,
           growthRate: 10,
         },
-        Shmonic: {
+        'Enso Villas by Arconique': {
           types: [
             { id: 1, name: "Вилла тип A", area: 150, count: 4 },
             { id: 2, name: "Вилла тип B", area: 180, count: 3 },
@@ -334,16 +334,16 @@
           {/* Вкладки для переключения между проектами */}
           <div className="tabs">
             <div 
-              className={`tab ${activeProject === 'Arconic' ? 'active' : ''}`} 
-              onClick={() => setActiveProject('Arconic')}
+              className={`tab ${activeProject === 'Ahau Gardens by Arconique' ? 'active' : ''}`} 
+              onClick={() => setActiveProject('Ahau Gardens by Arconique')}
             >
-              Arconic
+              Ahau Gardens by Arconique
             </div>
             <div 
-              className={`tab ${activeProject === 'Shmonic' ? 'active' : ''}`} 
-              onClick={() => setActiveProject('Shmonic')}
+              className={`tab ${activeProject === 'Enso Villas by Arconique' ? 'active' : ''}`} 
+              onClick={() => setActiveProject('Enso Villas by Arconique')}
             >
-              Shmonic
+              Enso Villas by Arconique
             </div>
           </div>
 

@@ -9,7 +9,6 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    /* Общие стили */
     * {
       margin: 0;
       padding: 0;
@@ -86,6 +85,12 @@
       font-weight: 500;
       color: #4CAF50;
       margin-bottom: 8px;
+    }
+
+    .toolbarItem .subText {
+      font-size: 12px;
+      color: #777;
+      margin-top: 4px;
     }
 
     .input, .select {
@@ -172,6 +177,7 @@
     const { useState, useMemo } = React;
 
     function VillaRevenueSplitApp() {
+      // -------- Состояние для нескольких проектов --------
       const [activeTab, setActiveTab] = useState('project1'); // Стейт для текущей вкладки
 
       // Данные для каждого проекта

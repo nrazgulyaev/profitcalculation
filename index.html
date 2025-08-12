@@ -276,7 +276,7 @@
             name: type.name,
             area: type.area,
             count: type.count,
-            totalPrice: totalVillaPrice * type.count
+            unitPrice: totalVillaPrice // Стоимость одной виллы
           };
         });
         return villaValues;
@@ -445,7 +445,7 @@
                 <th>Тип виллы</th>
                 <th>Площадь</th>
                 <th>Количество</th>
-                <th>Итоговая стоимость</th>
+                <th>Стоимость 1 виллы</th> {/* Стоимость одной виллы */}
               </tr>
             </thead>
             <tbody>
@@ -454,7 +454,7 @@
                   <td>{villa.name}</td>
                   <td>{villa.area} м²</td>
                   <td>{villa.count}</td>
-                  <td>{villa.totalPrice.toLocaleString()}</td>
+                  <td>{villa.unitPrice.toLocaleString()}</td> {/* Стоимость одной виллы */}
                 </tr>
               ))}
             </tbody>

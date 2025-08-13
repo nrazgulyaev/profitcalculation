@@ -112,6 +112,7 @@
       margin-bottom: 48px;
       gap: 16px;
       flex-wrap: wrap;
+      position: relative;
     }
 
     .tab {
@@ -164,11 +165,31 @@
       z-index: 2;
     }
 
+    .add-project-btn {
+      position: absolute;
+      right: 0;
+      top: 0;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: var(--radius-lg);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .add-project-btn:hover {
+      background: var(--secondary-hover);
+      transform: translateY(-1px);
+    }
+
     /* Заголовок */
     .header {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      justify-content: center;
+      align-items: center;
       margin-bottom: 48px;
       flex-wrap: wrap;
       gap: 32px;
@@ -179,21 +200,24 @@
       font-weight: 800;
       color: var(--text-primary);
       line-height: 1.2;
-      flex: 1;
-      min-width: 300px;
+      text-align: center;
+      width: 100%;
+      margin-bottom: 32px;
     }
 
     .header .controls {
       display: flex;
-      flex-direction: column;
-      gap: 20px;
-      min-width: 280px;
+      flex-direction: row;
+      gap: 32px;
+      justify-content: center;
+      width: 100%;
     }
 
     .controlGroup {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      min-width: 250px;
     }
 
     .controlGroup label {
@@ -386,21 +410,27 @@
 
     .villaType .inputs {
       display: grid;
-      grid-template-columns: 120px 80px 60px auto;
-      gap: 16px;
+      grid-template-columns: 140px 90px 70px 40px;
+      gap: 12px;
       align-items: center;
     }
 
     .villaType .inputs input:nth-child(1) {
-      max-width: 120px;
+      max-width: 140px;
     }
 
     .villaType .inputs input:nth-child(2) {
-      max-width: 80px;
+      max-width: 90px;
     }
 
     .villaType .inputs input:nth-child(3) {
-      max-width: 60px;
+      max-width: 70px;
+    }
+
+    .villaType .inputs button {
+      max-width: 40px;
+      padding: 8px;
+      font-size: 12px;
     }
 
     /* Расходы */
@@ -421,9 +451,19 @@
 
     .expenseItem .inputs {
       display: grid;
-      grid-template-columns: 1fr 2fr auto;
+      grid-template-columns: 1fr 120px 40px;
       gap: 16px;
       align-items: center;
+    }
+
+    .expenseItem .inputs input:nth-child(2) {
+      max-width: 120px;
+    }
+
+    .expenseItem .inputs button {
+      max-width: 40px;
+      padding: 8px;
+      font-size: 12px;
     }
 
     /* Поля ввода */
@@ -565,6 +605,101 @@
       background: var(--primary-light);
     }
 
+    /* Модальное окно */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal {
+      background: var(--bg-primary);
+      border-radius: var(--radius-2xl);
+      padding: 32px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--border-light);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      padding: 8px;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-normal);
+    }
+
+    .modal-close:hover {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .modal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .form-group input, .form-group textarea {
+      padding: 12px 16px;
+      border: 2px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      font-size: 16px;
+      transition: all var(--transition-normal);
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
     /* Уведомления */
     .notification {
       position: fixed;
@@ -636,6 +771,11 @@
         font-size: 2rem;
       }
       
+      .header .controls {
+        flex-direction: column;
+        gap: 20px;
+      }
+      
       .toolbar {
         grid-template-columns: 1fr;
       }
@@ -661,6 +801,12 @@
       
       .summaryItem .value {
         font-size: 1.5rem;
+      }
+      
+      .add-project-btn {
+        position: static;
+        margin-top: 16px;
+        width: 100%;
       }
     }
 
@@ -736,33 +882,118 @@
       );
     }
 
+    // Компонент формы проекта
+    function ProjectForm({ project, onSubmit, onCancel }) {
+      const [formData, setFormData] = useState({
+        name: project?.name || '',
+        description: project?.description || '',
+        basePrice: project?.basePrice || 2000,
+        growthRate: project?.growthRate || 10
+      });
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!formData.name.trim()) {
+          return;
+        }
+        onSubmit(formData);
+      };
+
+      return (
+        <form className="modal-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Название проекта *</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="Введите название проекта"
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Описание</label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Описание проекта (необязательно)"
+              rows="3"
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Базовая цена за м²</label>
+            <input
+              type="number"
+              value={formData.basePrice}
+              onChange={(e) => setFormData(prev => ({ ...prev, basePrice: Number(e.target.value) }))}
+              placeholder="2000"
+              min="0"
+              step="100"
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Целевая доходность (%)</label>
+            <input
+              type="number"
+              value={formData.growthRate}
+              onChange={(e) => setFormData(prev => ({ ...prev, growthRate: Number(e.target.value) }))}
+              placeholder="10"
+              min="0"
+              max="100"
+              step="0.1"
+            />
+          </div>
+          
+          <div className="modal-actions">
+            <button type="button" className="btnSmall" onClick={onCancel}>
+              Отмена
+            </button>
+            <button type="submit" className="btn">
+              {project ? 'Обновить' : 'Создать'}
+            </button>
+          </div>
+        </form>
+      );
+    }
+
     // Основной компонент
     function VillaRevenueSplitApp() {
       // Состояние для текущего проекта
       const [activeProject, setActiveProject] = useState('Ahau Gardens by Arconique');
       const [notifications, setNotifications] = useState([]);
+      const [isModalOpen, setIsModalOpen] = useState(false);
+      const [editingProject, setEditingProject] = useState(null);
 
-      // Данные для каждого проекта
-      const projectsData = {
-        'Ahau Gardens by Arconique': {
-          types: [
-            { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
-            { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
-            { id: 3, name: "Вилла тип 3", area: 201, count: 1 }
-          ],
-          basePrice: 2400,
-          growthRate: 10,
-        },
-        'Enso Villas by Arconique': {
-          types: [
-            { id: 1, name: "Вилла тип A", area: 150, count: 4 },
-            { id: 2, name: "Вилла тип B", area: 180, count: 3 },
-            { id: 3, name: "Вилла тип C", area: 200, count: 2 }
-          ],
-          basePrice: 2200,
-          growthRate: 8,
+      // Загружаем проекты из localStorage или используем дефолтные
+      const [projectsData, setProjectsData] = useState(() => {
+        const saved = localStorage.getItem('projectsData');
+        if (saved) {
+          return JSON.parse(saved);
         }
-      };
+        return {
+          'Ahau Gardens by Arconique': {
+            types: [
+              { id: 1, name: "Вилла тип 1", area: 142.7, count: 6 },
+              { id: 2, name: "Вилла тип 2", area: 192, count: 2 },
+              { id: 3, name: "Вилла тип 3", area: 201, count: 1 }
+            ],
+            basePrice: 2400,
+            growthRate: 10,
+          },
+          'Enso Villas by Arconique': {
+            types: [
+              { id: 1, name: "Вилла тип A", area: 150, count: 4 },
+              { id: 2, name: "Вилла тип B", area: 180, count: 3 },
+              { id: 3, name: "Вилла тип C", area: 200, count: 2 }
+            ],
+            basePrice: 2200,
+            growthRate: 8,
+          }
+        };
+      });
 
       // Состояние для текущего проекта
       const [types, setTypes] = useState(projectsData[activeProject].types);
@@ -772,13 +1003,20 @@
       const [investorInvestPct, setInvestorInvestPct] = useState(90);
       const [investorProfitPct, setInvestorProfitPct] = useState(45);
 
+      // Сохраняем проекты в localStorage при изменении
+      useEffect(() => {
+        localStorage.setItem('projectsData', JSON.stringify(projectsData));
+      }, [projectsData]);
+
       // Обновление данных проекта при смене активного проекта
       useEffect(() => {
         const projectData = projectsData[activeProject];
-        setTypes(projectData.types);
-        setBasePrice(projectData.basePrice);
-        setGrowthRate(projectData.growthRate);
-      }, [activeProject]);
+        if (projectData) {
+          setTypes(projectData.types);
+          setBasePrice(projectData.basePrice);
+          setGrowthRate(projectData.growthRate);
+        }
+      }, [activeProject, projectsData]);
 
       // Автоматическое заполнение месяцев
       const currentMonth = new Date().getMonth() + 1;
@@ -801,6 +1039,59 @@
       const removeNotification = useCallback((id) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
       }, []);
+
+      // Функции для работы с проектами
+      const createProject = (projectData) => {
+        const newProject = {
+          types: [
+            { id: 1, name: "Вилла тип 1", area: 100, count: 1 }
+          ],
+          basePrice: 2000,
+          growthRate: 10,
+          ...projectData
+        };
+        
+        setProjectsData(prev => ({
+          ...prev,
+          [projectData.name]: newProject
+        }));
+        
+        setActiveProject(projectData.name);
+        setIsModalOpen(false);
+        addNotification('Новый проект создан');
+      };
+
+      const updateProject = (oldName, projectData) => {
+        const updatedProjects = { ...projectsData };
+        delete updatedProjects[oldName];
+        updatedProjects[projectData.name] = {
+          ...projectsData[oldName],
+          ...projectData
+        };
+        
+        setProjectsData(updatedProjects);
+        setActiveProject(projectData.name);
+        setIsModalOpen(false);
+        addNotification('Проект обновлен');
+      };
+
+      const deleteProject = (projectName) => {
+        if (Object.keys(projectsData).length <= 1) {
+          addNotification('Нельзя удалить последний проект', 'error');
+          return;
+        }
+        
+        const updatedProjects = { ...projectsData };
+        delete updatedProjects[projectName];
+        
+        setProjectsData(updatedProjects);
+        
+        // Переключаемся на первый доступный проект
+        const firstProject = Object.keys(updatedProjects)[0];
+        setActiveProject(firstProject);
+        
+        addNotification('Проект удален');
+      };
 
       // Обновление затрат
       const updateExpense = useCallback((index, field, value) => {
@@ -837,7 +1128,7 @@
           return;
         }
         const updatedTypes = types.filter((_, i) => i !== index);
-        setTypes(updatedTypes);
+        setTypes([...updatedTypes]);
         addNotification('Тип виллы удален');
       }, [types, addNotification]);
 
@@ -846,7 +1137,7 @@
         const newMonth = monthsList[monthsList.length - 1];
         setExpenses([...expenses, { month: newMonth, amount: 0 }]);
         addNotification('Новые расходы добавлены');
-      }, [expenses, monthsList, addNotification]);
+           }, [expenses, monthsList, addNotification]);
 
       // Удаление расходов
       const removeExpense = useCallback((index) => {
@@ -914,6 +1205,17 @@
       const totalProjectValue = useMemo(() => villaValues.reduce((sum, villa) => sum + villa.totalPrice, 0), [villaValues]);
       const totalExpensesSum = useMemo(() => expenses.reduce((sum, expense) => sum + expense.amount, 0), [expenses]);
 
+      // Рекомендуемая розничная цена на текущий месяц
+      const recommendedRetailPrice = useMemo(() => {
+        if (results.length === 0) return 0;
+        
+        // Берем последний месяц (последнюю строку в таблице)
+        const lastResult = results[results.length - 1];
+        
+        // Возвращаем рекомендуемую розничную цену с налогом и комиссией
+        return lastResult.marketPriceWithTaxAndCommission;
+      }, [results]);
+
       return (
         <div className="container">
           {/* Уведомления */}
@@ -928,18 +1230,25 @@
 
           {/* Вкладки для переключения между проектами */}
           <div className="tabs">
-            <div 
-              className={`tab ${activeProject === 'Ahau Gardens by Arconique' ? 'active' : ''}`} 
-              onClick={() => setActiveProject('Ahau Gardens by Arconique')}
+            {Object.keys(projectsData).map(projectName => (
+              <div 
+                key={projectName}
+                className={`tab ${activeProject === projectName ? 'active' : ''}`} 
+                onClick={() => setActiveProject(projectName)}
+              >
+                <span>{projectName}</span>
+              </div>
+            ))}
+            <button 
+              className="add-project-btn"
+              onClick={() => {
+                setEditingProject(null);
+                setIsModalOpen(true);
+              }}
+              title="Добавить новый проект"
             >
-              <span>Ahau Gardens by Arconique</span>
-            </div>
-            <div 
-              className={`tab ${activeProject === 'Enso Villas by Arconique' ? 'active' : ''}`} 
-              onClick={() => setActiveProject('Enso Villas by Arconique')}
-            >
-              <span>Enso Villas by Arconique</span>
-            </div>
+              + Новый проект
+            </button>
           </div>
 
           <div className="header">
@@ -993,6 +1302,11 @@
                 <div className="value">{formatCurrency(totalExpensesSum)}</div>
                 <div className="label">Общие затраты</div>
               </div>
+              {/* Новый блок с рекомендуемой ценой */}
+              <div className="summaryItem">
+                <div className="value">{formatCurrency(recommendedRetailPrice)}</div>
+                <div className="label">Рекомендуемая розничная цена на текущий месяц</div>
+              </div>
             </div>
           </div>
 
@@ -1019,16 +1333,16 @@
                       value={type.area} 
                       onChange={(e) => {
                         const value = e.target.value;
-                        if (value.length <= 3) {
+                        if (value.length <= 4) {
                           const updatedTypes = [...types];
                           updatedTypes[index].area = Number(value);
                           setTypes(updatedTypes);
                         }
                       }} 
-                      placeholder="Макс. 999"
+                      placeholder="Макс. 9999"
                       className="input"
                       min="0"
-                      max="999"
+                      max="9999"
                       step="0.1"
                     />
                     <input 
@@ -1036,16 +1350,16 @@
                       value={type.count} 
                       onChange={(e) => {
                         const value = e.target.value;
-                        if (value.length <= 2) {
+                        if (value.length <= 3) {
                           const updatedTypes = [...types];
                           updatedTypes[index].count = Number(value);
                           setTypes(updatedTypes);
                         }
                       }} 
-                      placeholder="Макс. 99"
+                      placeholder="Макс. 999"
                       className="input"
                       min="1"
-                      max="99"
+                      max="999"
                     />
                     <button 
                       className="btnSmallDanger" 
@@ -1156,6 +1470,34 @@
               </tbody>
             </table>
           </div>
+
+          {/* Модальное окно для создания/редактирования проекта */}
+          {isModalOpen && (
+            <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+              <div className="modal" onClick={e => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h3 className="modal-title">
+                    {editingProject ? 'Редактировать проект' : 'Создать новый проект'}
+                  </h3>
+                  <button 
+                    className="modal-close"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    ×
+                  </button>
+                </div>
+                
+                <ProjectForm 
+                  project={editingProject}
+                  onSubmit={editingProject ? 
+                    (data) => updateProject(editingProject.name, data) : 
+                    createProject
+                  }
+                  onCancel={() => setIsModalOpen(false)}
+                />
+              </div>
+            </div>
+          )}
 
           <div className="footer">
             <span>Проект Arconic © 2025 | Разработано с ❤️ для управления недвижимостью</span>

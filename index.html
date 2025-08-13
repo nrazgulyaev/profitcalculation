@@ -12,49 +12,42 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* CSS переменные для современной цветовой схемы */
+    /* Современная цветовая схема 2025 года (как у Linear/Notion) */
     :root {
-      /* Основная палитра */
-      --primary-50: #f0fdf4;
-      --primary-100: #dcfce7;
-      --primary-200: #bbf7d0;
-      --primary-300: #86efac;
-      --primary-400: #4ade80;
-      --primary-500: #22c55e;
-      --primary-600: #16a34a;
-      --primary-700: #15803d;
-      --primary-800: #166534;
-      --primary-900: #14532d;
+      /* Основные цвета */
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
       
-      /* Нейтральные цвета */
-      --neutral-50: #fafafa;
-      --neutral-100: #f5f5f5;
-      --neutral-200: #e5e5e5;
-      --neutral-300: #d4d4d4;
-      --neutral-400: #a3a3a3;
-      --neutral-500: #737373;
-      --neutral-600: #525252;
-      --neutral-700: #404040;
-      --neutral-800: #262626;
-      --neutral-900: #171717;
+      /* Текст */
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-tertiary: #64748b;
       
-      /* Акцентные цвета */
-      --accent-50: #faf5ff;
-      --accent-100: #f3e8ff;
-      --accent-500: #8b5cf6;
-      --accent-600: #7c3aed;
-      --accent-700: #6d28d9;
+      /* Акценты */
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-light: #dbeafe;
+      --secondary: #10b981;
+      --secondary-hover: #059669;
+      --secondary-light: #d1fae5;
       
-      /* Градиенты */
-      --gradient-primary: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
-      --gradient-accent: linear-gradient(135deg, var(--accent-500) 0%, var(--accent-600) 100%);
-      --gradient-dark: linear-gradient(135deg, var(--neutral-800) 0%, var(--neutral-900) 100%);
+      /* Системные цвета */
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --info: #3b82f6;
+      
+      /* Границы */
+      --border-light: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --border-dark: #94a3b8;
       
       /* Тени */
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
       
       /* Переходы */
       --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -77,9 +70,9 @@
     }
 
     body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--bg-secondary);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: var(--neutral-900);
+      color: var(--text-primary);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -91,13 +84,12 @@
     .container {
       width: 100%;
       max-width: 1400px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
+      background: var(--bg-primary);
       border-radius: var(--radius-2xl);
       box-shadow: var(--shadow-xl);
       padding: 40px;
       margin: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid var(--border-light);
       position: relative;
       overflow: hidden;
     }
@@ -108,8 +100,8 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: var(--gradient-primary);
+      height: 3px;
+      background: var(--primary);
       border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
     }
 
@@ -130,8 +122,8 @@
       border: 2px solid transparent;
       border-radius: var(--radius-xl);
       transition: all var(--transition-normal);
-      background: var(--neutral-100);
-      color: var(--neutral-700);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
       min-width: 220px;
       text-align: center;
       position: relative;
@@ -145,7 +137,7 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: var(--gradient-primary);
+      background: var(--primary);
       transition: left var(--transition-normal);
       z-index: 1;
     }
@@ -155,14 +147,14 @@
     }
 
     .tab.active {
-      border-color: var(--primary-500);
+      border-color: var(--primary);
       color: white;
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
     }
 
     .tab:hover:not(.active) {
-      background: var(--neutral-200);
+      background: var(--bg-tertiary);
       transform: translateY(-1px);
       box-shadow: var(--shadow-md);
     }
@@ -185,10 +177,7 @@
     .header h1 {
       font-size: 2.5rem;
       font-weight: 800;
-      background: var(--gradient-primary);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--text-primary);
       line-height: 1.2;
       flex: 1;
       min-width: 300px;
@@ -210,44 +199,44 @@
     .controlGroup label {
       font-size: 14px;
       font-weight: 600;
-      color: var(--primary-700);
+      color: var(--primary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
     .header input {
       padding: 16px 20px;
-      border: 2px solid var(--neutral-200);
+      border: 2px solid var(--border-light);
       border-radius: var(--radius-lg);
       font-size: 16px;
       font-weight: 500;
       transition: all var(--transition-normal);
-      background: var(--neutral-50);
-      color: var(--neutral-900);
+      background: var(--bg-primary);
+      color: var(--text-primary);
     }
 
     .header input:focus {
-      border-color: var(--primary-500);
-      background: white;
+      border-color: var(--primary);
+      background: var(--bg-primary);
       outline: none;
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+      box-shadow: 0 0 0 4px var(--primary-light);
       transform: translateY(-1px);
     }
 
     .subText {
       font-size: 12px;
-      color: var(--neutral-500);
+      color: var(--text-tertiary);
       margin-top: 4px;
       font-weight: 400;
     }
 
     /* Общие показатели */
     .summary {
-      background: var(--gradient-dark);
+      background: var(--bg-secondary);
       padding: 32px;
       border-radius: var(--radius-2xl);
       margin: 40px 0;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-light);
       position: relative;
       overflow: hidden;
     }
@@ -259,7 +248,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+      background: linear-gradient(45deg, transparent 30%, rgba(59, 130, 246, 0.05) 50%, transparent 70%);
       animation: shimmer 3s infinite;
     }
 
@@ -269,7 +258,7 @@
     }
 
     .summary h2 {
-      color: white;
+      color: var(--text-primary);
       margin-bottom: 24px;
       font-size: 1.75rem;
       font-weight: 700;
@@ -286,32 +275,32 @@
     }
 
     .summaryItem {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
+      background: var(--bg-primary);
       padding: 24px;
       border-radius: var(--radius-xl);
       text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid var(--border-light);
       transition: all var(--transition-normal);
     }
 
     .summaryItem:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: var(--bg-secondary);
       transform: translateY(-4px);
       box-shadow: var(--shadow-lg);
+      border-color: var(--primary);
     }
 
     .summaryItem .value {
       font-size: 2rem;
       font-weight: 800;
-      color: var(--primary-400);
+      color: var(--primary);
       margin-bottom: 8px;
       font-family: 'JetBrains Mono', monospace;
     }
 
     .summaryItem .label {
       font-size: 14px;
-      color: var(--neutral-200);
+      color: var(--text-secondary);
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -326,10 +315,10 @@
     }
 
     .toolbarItem {
-      background: var(--neutral-50);
+      background: var(--bg-secondary);
       padding: 32px;
       border-radius: var(--radius-2xl);
-      border: 1px solid var(--neutral-200);
+      border: 1px solid var(--border-light);
       transition: all var(--transition-normal);
       position: relative;
       overflow: hidden;
@@ -342,7 +331,7 @@
       left: 0;
       right: 0;
       height: 3px;
-      background: var(--gradient-accent);
+      background: var(--primary);
       opacity: 0;
       transition: opacity var(--transition-normal);
     }
@@ -352,16 +341,16 @@
     }
 
     .toolbarItem:hover {
-      background: white;
+      background: var(--bg-primary);
       transform: translateY(-4px);
       box-shadow: var(--shadow-xl);
-      border-color: var(--neutral-300);
+      border-color: var(--border-medium);
     }
 
     .toolbarItem label {
       font-size: 18px;
       font-weight: 700;
-      color: var(--neutral-800);
+      color: var(--text-primary);
       margin-bottom: 24px;
       display: block;
       position: relative;
@@ -374,46 +363,58 @@
       left: 0;
       width: 40px;
       height: 3px;
-      background: var(--gradient-accent);
+      background: var(--primary);
       border-radius: var(--radius-sm);
     }
 
     /* Типы вилл */
     .villaType {
-      background: white;
+      background: var(--bg-primary);
       padding: 20px;
       border-radius: var(--radius-xl);
       margin-bottom: 20px;
-      border: 1px solid var(--neutral-200);
+      border: 1px solid var(--border-light);
       transition: all var(--transition-normal);
       position: relative;
     }
 
     .villaType:hover {
-      border-color: var(--primary-300);
+      border-color: var(--primary);
       box-shadow: var(--shadow-md);
       transform: translateY(-2px);
     }
 
     .villaType .inputs {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr auto;
+      grid-template-columns: 120px 80px 60px auto;
       gap: 16px;
       align-items: center;
     }
 
+    .villaType .inputs input:nth-child(1) {
+      max-width: 120px;
+    }
+
+    .villaType .inputs input:nth-child(2) {
+      max-width: 80px;
+    }
+
+    .villaType .inputs input:nth-child(3) {
+      max-width: 60px;
+    }
+
     /* Расходы */
     .expenseItem {
-      background: white;
+      background: var(--bg-primary);
       padding: 20px;
       border-radius: var(--radius-xl);
       margin-bottom: 20px;
-      border: 1px solid var(--neutral-200);
+      border: 1px solid var(--border-light);
       transition: all var(--transition-normal);
     }
 
     .expenseItem:hover {
-      border-color: var(--accent-400);
+      border-color: var(--secondary);
       box-shadow: var(--shadow-md);
       transform: translateY(-2px);
     }
@@ -430,17 +431,17 @@
       padding: 16px 20px;
       font-size: 16px;
       border-radius: var(--radius-lg);
-      border: 2px solid var(--neutral-200);
+      border: 2px solid var(--border-light);
       transition: all var(--transition-normal);
-      background: white;
-      color: var(--neutral-900);
+      background: var(--bg-primary);
+      color: var(--text-primary);
       font-weight: 500;
     }
 
     .input:focus, .select:focus {
-      border-color: var(--primary-500);
+      border-color: var(--primary);
       outline: none;
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+      box-shadow: 0 0 0 4px var(--primary-light);
       transform: translateY(-1px);
     }
 
@@ -479,12 +480,13 @@
     }
 
     .btn {
-      background: var(--gradient-primary);
+      background: var(--primary);
       color: white;
       box-shadow: var(--shadow-md);
     }
 
     .btn:hover {
+      background: var(--primary-hover);
       transform: translateY(-2px);
       box-shadow: var(--shadow-xl);
     }
@@ -492,12 +494,13 @@
     .btnSmall {
       padding: 12px 24px;
       font-size: 14px;
-      background: var(--gradient-accent);
+      background: var(--text-secondary);
       color: white;
       box-shadow: var(--shadow-sm);
     }
 
     .btnSmall:hover {
+      background: var(--text-primary);
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
     }
@@ -505,12 +508,13 @@
     .btnSmallDanger {
       padding: 12px 20px;
       font-size: 14px;
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      background: var(--error);
       color: white;
       box-shadow: var(--shadow-sm);
     }
 
     .btnSmallDanger:hover {
+      background: #dc2626;
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
     }
@@ -521,22 +525,22 @@
       border-collapse: separate;
       border-spacing: 0;
       margin-top: 40px;
-      background: white;
+      background: var(--bg-primary);
       border-radius: var(--radius-2xl);
       overflow: hidden;
       box-shadow: var(--shadow-lg);
-      border: 1px solid var(--neutral-200);
+      border: 1px solid var(--border-light);
     }
 
     .table th, .table td {
       padding: 20px;
       text-align: left;
-      border-bottom: 1px solid var(--neutral-200);
+      border-bottom: 1px solid var(--border-light);
       font-weight: 500;
     }
 
     .table th {
-      background: var(--gradient-primary);
+      background: var(--primary);
       color: white;
       font-weight: 700;
       font-size: 14px;
@@ -548,17 +552,17 @@
     }
 
     .table tr:hover {
-      background: var(--primary-50);
+      background: var(--primary-light);
       transform: scale(1.01);
       transition: all var(--transition-fast);
     }
 
     .table tr:nth-child(even) {
-      background: var(--neutral-50);
+      background: var(--bg-secondary);
     }
 
     .table tr:nth-child(even):hover {
-      background: var(--primary-50);
+      background: var(--primary-light);
     }
 
     /* Уведомления */
@@ -589,26 +593,26 @@
     }
 
     .notification.success {
-      background: var(--gradient-primary);
+      background: var(--success);
     }
 
     .notification.error {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      background: var(--error);
     }
 
     /* Футер */
     .footer {
       text-align: center;
       font-size: 14px;
-      color: var(--neutral-600);
+      color: var(--text-tertiary);
       margin-top: 48px;
       padding-top: 24px;
-      border-top: 1px solid var(--neutral-200);
+      border-top: 1px solid var(--border-light);
       font-weight: 500;
     }
 
     .footer a {
-      color: var(--primary-600);
+      color: var(--primary);
       text-decoration: none;
       font-weight: 600;
     }
@@ -710,9 +714,9 @@
     };
 
     const formatCurrency = (amount) => {
-      return new Intl.NumberFormat('ru-RU', {
+      return new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: 'RUB',
+        currency: 'USD',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
       }).format(amount);
@@ -1003,36 +1007,45 @@
                       value={type.name} 
                       onChange={(e) => {
                         const updatedTypes = [...types];
-                        updatedTypes[index].name = e.target.value;
+                        updatedTypes[index].name = e.target.value.slice(0, 12);
                         setTypes(updatedTypes);
                       }} 
-                      placeholder="Название виллы"
+                      placeholder="Макс. 12 символов"
                       className="input"
+                      maxLength="12"
                     />
                     <input 
                       type="number" 
                       value={type.area} 
                       onChange={(e) => {
-                        const updatedTypes = [...types];
-                        updatedTypes[index].area = Number(e.target.value);
-                        setTypes(updatedTypes);
+                        const value = e.target.value;
+                        if (value.length <= 3) {
+                          const updatedTypes = [...types];
+                          updatedTypes[index].area = Number(value);
+                          setTypes(updatedTypes);
+                        }
                       }} 
-                      placeholder="Площадь"
+                      placeholder="Макс. 999"
                       className="input"
                       min="0"
+                      max="999"
                       step="0.1"
                     />
                     <input 
                       type="number" 
                       value={type.count} 
                       onChange={(e) => {
-                        const updatedTypes = [...types];
-                        updatedTypes[index].count = Number(e.target.value);
-                        setTypes(updatedTypes);
+                        const value = e.target.value;
+                        if (value.length <= 2) {
+                          const updatedTypes = [...types];
+                          updatedTypes[index].count = Number(value);
+                          setTypes(updatedTypes);
+                        }
                       }} 
-                      placeholder="Количество"
+                      placeholder="Макс. 99"
                       className="input"
                       min="1"
+                      max="99"
                     />
                     <button 
                       className="btnSmallDanger" 
